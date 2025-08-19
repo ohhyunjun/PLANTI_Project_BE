@@ -12,7 +12,7 @@ public class PostService {
 
     private final PostRepository postRepository;
 
-    public Post save(PostRequestDto dto){
-        return postRepository.save(dto.toEntity());
+    public Post save(PostRequestDto postRequestDto){
+        return postRepository.save(postRequestDto.toEntity());
     }
 }
