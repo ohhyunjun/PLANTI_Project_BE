@@ -29,9 +29,10 @@ public class JoinService {
         }
 
         UserEntity data = UserEntity.builder()
-                .name(name) // ✅ setUsername -> name
-                .password(bCryptPasswordEncoder.encode(password)) // ✅ 비밀번호 암호화
-                .role(UserRole.ADMIN) // ✅ String이 아닌 Enum 타입(UserRole.ADMIN)으로 역할 설정
+                .name(name)
+                .password(bCryptPasswordEncoder.encode(password))
+                .email(joinDTO.getEmail())
+                .role(UserRole.ADMIN)
                 .build();
 
         userRepository.save(data);
