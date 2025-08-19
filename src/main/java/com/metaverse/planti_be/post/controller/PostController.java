@@ -19,7 +19,8 @@ public class PostController {
     private final PostService postService;
 
     // 게시글 작성 API
-    public ResponseEntity<Post> createPost(@RequestBody PostRequestDto postRequestDto){
+    @PostMapping("/posts")
+    public ResponseEntity<PostResponseDto> createPost(@RequestBody PostRequestDto postRequestDto){
         Post post = postService.save(postRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(new PostResponseDto(post));
     }
@@ -27,9 +28,9 @@ public class PostController {
     // 게시글 목록 조회 API
     @GetMapping("/posts")
     public ResponseEntity<List<PostResponseDto>> getAllPosts(){
-        List<PostListResponseDto> postListDto = postService.findAll()
+        List<PostResponseDto> postListDto = postService.findAll()
                 .stream()
-                .map(PostListResponseDto::new)
+                .map(PostResponseDto::new)
                 .toList();
         return ResponseEntity.ok().body(postListDto);
     }
@@ -42,6 +43,7 @@ public class PostController {
     }
 
     // 게시글 수정 API
+    @PutMapping("/posts/{id}")
     public ResponseEntity<PostResponseDto> updatePostById(@PathVariable Long id, @RequestBody PostRequestDto postRequestDto){
         Post post = postService.update(id, postRequestDto);
         return ResponseEntity.ok().body(new PostResponseDto(post));

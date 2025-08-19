@@ -2,16 +2,12 @@ package com.metaverse.planti_be.post.domain;
 
 import com.metaverse.planti_be.common.TimeStamped;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "Post")
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 public class Post extends TimeStamped {
 
@@ -25,4 +21,15 @@ public class Post extends TimeStamped {
     @Column(name = "content")
     private String content;
 
+    @Builder
+    public Post(Long id, String title, String content) {
+        this.id = id;
+        this.title = title;
+        this.content = content;
+    }
+
+    public void update(String title, String content){
+        this.title = title;
+        this.content = content;
+    }
 }
