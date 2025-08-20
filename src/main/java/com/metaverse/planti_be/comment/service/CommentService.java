@@ -18,23 +18,23 @@ public class CommentService {
 
     // 댓글 추가
     public Comment save(CommentRequestDto commentRequestDto){
-        return commentRequestDto.save(commentRequestDto.toEntity());
+        return commentRepository.save(commentRequestDto.toEntity());
     }
     // 댓글 전체 조회
-    public List<Comment> findAll(){
+    public List<Comment> findAll(Long postId){
         return commentRepository.findAll();
     }
     // 댓글 삭제
-    public void delete(Long postId, Long id){
-        Comment comment = commentRepository.findByPostIdAndId(postId, id).orElseThrow(()->
-                new IllegalArgumentException("해당 댓글이 존재하지 않습니다. " + id));
+    public void delete(Long postId, Long commentId){
+        Comment comment = commentRepository.findByPostIdAndId(postId, commentId).orElseThrow(()->
+                new IllegalArgumentException("해당 댓글이 존재하지 않습니다. " + commentId));
 
         commentRepository.delete(comment);
     }
     // 댓글 수정
-    public Comment update(Long postId, Long id, CommentRequestDto commentRequestDto){
-        Comment comment = commentRepository.findByPostIdAndId(postId, id).orElseThrow(()->
-                new IllegalArgumentException("해당 댓글이 존재하지 않습니다. " + id));
+    public Comment update(Long postId, Long commentId, CommentRequestDto commentRequestDto){
+        Comment comment = commentRepository.findByPostIdAndId(postId, commentId).orElseThrow(()->
+                new IllegalArgumentException("해당 댓글이 존재하지 않습니다. " + commentId));
 
         comment.update(commentRequestDto.getContent());
         return commentRepository.save(comment);
