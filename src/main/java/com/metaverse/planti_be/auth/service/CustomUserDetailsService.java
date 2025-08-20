@@ -1,5 +1,6 @@
 package com.metaverse.planti_be.auth.service;
 
+import com.metaverse.planti_be.auth.dto.CustomUserDetails;
 import com.metaverse.planti_be.auth.entity.UserEntity;
 import com.metaverse.planti_be.auth.repository.UserRepository;
 import lombok.Setter;
