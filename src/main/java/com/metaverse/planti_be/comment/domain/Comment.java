@@ -22,6 +22,9 @@ public class Comment extends TimeStamped {
     @Column(name = "content")
     private String content;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id", nullable = false)
+    private Post post;
 
     public Comment(CommentRequestDto  commentRequestDto) {
         this.content = commentRequestDto.getContent();

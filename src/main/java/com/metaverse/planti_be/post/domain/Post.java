@@ -27,7 +27,7 @@ public class Post extends TimeStamped {
     private String content;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments = new ArrayList<>();
+    List<Comment> comments = new ArrayList<>();
 
     public Post(PostRequestDto postRequestDto) {
         this.title = postRequestDto.getTitle();
