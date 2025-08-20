@@ -12,11 +12,10 @@ import java.time.LocalDateTime;
 @Table(name = "user") // ✅ 연결될 테이블의 이름을 "user"로 지정
 @EntityListeners(AuditingEntityListener.class) // ✅ 생성/수정 시간 자동 기록을 위한 리스너 추가
 @Getter
-@Builder
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -25,21 +24,28 @@ public class UserEntity {
     @Column(name = "name",unique = true, nullable = false, updatable = false)
     private String name;
 
-    @Column(name = "email")
-    private String email;
-
     @Column(name = "password", nullable = false)
     private String password;
 
+    @Column(name = "email", nullable = false, unique = true)
+    private String email;
+
     @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
+    @Column(name = "role")
     private UserRole role;
 
-    @CreatedDate // ✅ 엔티티 생성 시 시간 자동 저장
+    @CreatedDate // 엔티티 생성 시 시간 자동 저장
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public UserEntity(String name, String password, String email, UserRole role) {
+        this.name = name;
+        this.password = password;
+        this.email = email;
+        this.role = role;
+    }
 }
