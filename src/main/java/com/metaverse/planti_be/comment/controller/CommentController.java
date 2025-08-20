@@ -20,25 +20,29 @@ public class CommentController {
 
     // 댓글 작성 API
     @PostMapping("/comments")
-    public CommentResponseDto createComment(@RequestBody CommentRequestDto commentRequestDto){
-        return commentService.createComment(commentRequestDto);
+    public ResponseEntity<CommentResponseDto> createComment(@RequestBody CommentRequestDto commentRequestDto) {
+        CommentResponseDto commentResponseDto = commentService.createComment(commentRequestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(commentResponseDto);
     }
 
     // 댓글 목록 읽어오기 API
     @GetMapping("/comments")
-    public List<CommentResponseDto> getComments() {
-        return commentService.getComments();
+    public ResponseEntity<List<CommentResponseDto>> getComments() {
+        List<CommentResponseDto> commentResponseDto = commentService.getComments();
+        return ResponseEntity.ok(commentResponseDto);
     }
 
     // 댓글 수정 API
     @PutMapping("/comments/{commentId}")
-    public Long updateComment(@PathVariable Long commentId, @RequestBody CommentRequestDto commentRequestDto){
-        return commentService.updateComment(commentId, commentRequestDto);
+    public ResponseEntity<CommentResponseDto> updateComment(@PathVariable Long commentId, @RequestBody CommentRequestDto commentRequestDto){
+        CommentResponseDto updatedComment = commentService.updateComment(commentId, commentRequestDto);
+        return ResponseEntity.ok(updatedComment);
     }
 
     // 댓글 삭제 API
     @DeleteMapping("/comments/{commentId}")
-    public Long deleteComment(@PathVariable Long commentId){
-        return commentService.deleteComment(commentId);
+    public ResponseEntity<Void> deleteComment(@PathVariable Long commentId){
+        commentService.deleteComment(commentId);
+        return ResponseEntity.noContent().build();
     }
 }
