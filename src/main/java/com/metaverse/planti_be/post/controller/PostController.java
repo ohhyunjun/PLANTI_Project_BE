@@ -4,6 +4,7 @@ import com.metaverse.planti_be.post.dto.PostRequestDto;
 import com.metaverse.planti_be.post.dto.PostResponseDto;
 import com.metaverse.planti_be.post.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,15 +19,18 @@ public class PostController {
 
     // 게시글 작성 API
     @PostMapping("/posts")
-    public PostResponseDto createPost(@RequestBody PostRequestDto postRequestDto){
-        return postService.createPost(postRequestDto);
+    public ResponseEntity<PostResponseDto> createPost(@RequestBody PostRequestDto postRequestDto){
+        PostResponseDto postResponseDto = postService.createPost(postRequestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(postResponseDto);
     }
 
     // 게시글 목록 조회 API
     @GetMapping("/posts")
-    public List<PostResponseDto> getAllPosts(){
-        return postService.getPost();
+    public ResponseEntity<List<PostResponseDto>> getPosts(){
+        List<PostResponseDto> postResponseDtoList = postService.getPost();
+        return ResponseEntity.ok(postResponseDtoList);
     }
+
 
     // 게시글 수정 API
     @PutMapping("/posts/{id}")
