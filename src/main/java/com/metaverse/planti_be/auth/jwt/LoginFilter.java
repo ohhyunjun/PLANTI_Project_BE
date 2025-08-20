@@ -1,5 +1,6 @@
 package com.metaverse.planti_be.auth.jwt;
 
+import com.metaverse.planti_be.auth.dto.CustomUserDetails;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -7,15 +8,22 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.util.Collection;
+import java.util.Iterator;
 
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
+    //JWTUtil 주입
+    private final JWTUtil jwtUtil;
 
-    public LoginFilter(AuthenticationManager authenticationManager) {
+    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
         this.authenticationManager = authenticationManager;
         setUsernameParameter("name");//기본적으로 username 파라미터를 찾도록 되어 있는것을 name으로 바꾼것
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
@@ -35,12 +43,26 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     //로그인 성공시 실행하는 메소드 (여기서 JWT를 발급하면 됨)
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
-        System.out.println("success");
+
+        //UserDetails 객체 추출
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        // 사용자의 name 추출
+        String name = customUserDetails.getUsername();
+        // 사용자의 Role 추출
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
+        GrantedAuthority auth = iterator.next();
+
+        String role = auth.getAuthority();
+        //JWT 제작 및 만료 시간
+        String token = jwtUtil.createJwt(name, role, 60*60*10L);
+        //JWT를 헤더에 담아서 응답
+        response.addHeader("Authorization", "Bearer " + token);
     }
 
     //로그인 실패시 실행하는 메소드
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
-        System.out.println("fail");
+        response.setStatus(403);
     }
 }
