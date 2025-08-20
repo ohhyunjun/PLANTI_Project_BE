@@ -19,7 +19,7 @@ public class JoinController {
     @PostMapping("/join")
     public String joinProcess(JoinDTO joinDTO) {
 
-        System.out.println(joinDTO.getName()); // ✅ getUsername() -> getName() 으로 변경
+        System.out.println(joinDTO.getName());
         joinService.joinProcess(joinDTO);
 
         return "ok";
