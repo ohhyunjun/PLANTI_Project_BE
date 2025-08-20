@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,46 +22,63 @@ public class CommentService {
     private final PostRepository postRepository;
 
     // 댓글 추가
-    public CommentResponseDto createComment(CommentRequestDto commentRequestDto) {
-        Post post = postRepository.findById(commentRequestDto.getPostId()).orElseThrow(() ->
-                new IllegalArgumentException("해당 글을 찾을 수 없습니다.")
-        );
+    public CommentResponseDto createComment(Long postId, CommentRequestDto commentRequestDto) {
+        Post post = getValidPost(postId);
 
         Comment comment = new Comment(
                 commentRequestDto.getContent(),
                 post
         );
         Comment savedComment = commentRepository.save(comment);
-        CommentResponseDto commentResponseDto = new CommentResponseDto(savedComment);
-        return commentResponseDto;
+        return new CommentResponseDto(savedComment);
     }
     // 댓글 전체 조회
     public List<CommentResponseDto> getComments() {
-        List<CommentResponseDto> commentResponseDtoList = commentRepository
-                .findAllByOrderByCreatedAtAsc()
-                .stream()
+        return commentRepository.findAllByOrderByCreatedAtAsc().stream()
                 .map(CommentResponseDto::new)
-                .toList();
-        return commentResponseDtoList;
+                .collect(Collectors.toList());
+    }
+
+    //특정 글의 댓글 조회
+    public List<CommentResponseDto> getCommentsByPostId(Long postId) {
+        getValidPost(postId);
+
+        return commentRepository.findByPostIdOrderByCreatedAtAsc(postId).stream()
+                .map(CommentResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
+    // 댓글의 아이디 조회
+    public CommentResponseDto getCommentById(Long postId, Long commentId) {
+        Comment comment = getValidComment(postId,commentId);
+        return new CommentResponseDto(comment);
     }
 
     // 댓글 수정
-    public CommentResponseDto updateComment(Long commentId, CommentRequestDto commentRequestDto) {
-        Comment comment = findComment(commentId);
+    public CommentResponseDto updateComment(Long postId, Long commentId, CommentRequestDto commentRequestDto) {
+        Comment comment = getValidComment(postId, commentId);
         comment.update(
                 commentRequestDto.getContent()
         );
         return new CommentResponseDto(comment);
     }
 
-    public void deleteComment(Long commentId) {
-        Comment comment = findComment(commentId);
+    public void deleteComment(Long postId, Long commentId) {
+        Comment comment = getValidComment(postId, commentId);
         commentRepository.delete(comment);
     }
 
-    private Comment findComment(Long commentId) {
-        return commentRepository.findById(commentId).orElseThrow(() ->
-                new IllegalArgumentException("해당 댓글은 존재하지 않습니다.")
+    private Post getValidPost(Long postId) {
+        return postRepository.findById(postId).orElseThrow(()->
+                new IllegalArgumentException("해당 게시글을 찾을 수 없습니다. Post ID:" + postId)
+        );
+    }
+
+    private Comment getValidComment(Long postId, Long commentId) {
+        Post post = getValidPost(postId);
+
+        return commentRepository.findByIdAndPostId(commentId, post.getId()).orElseThrow(() ->
+                new IllegalArgumentException("게시글(ID: " + postId + ")에서 댓글(ID: "+ commentId + ")을 찾을 수 없습니다.")
         );
     }
 
