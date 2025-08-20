@@ -1,8 +1,9 @@
 package com.metaverse.planti_be.comment.domain;
 
+import com.metaverse.planti_be.comment.dto.CommentRequestDto;
 import com.metaverse.planti_be.common.TimeStamped;
+import com.metaverse.planti_be.post.domain.Post;
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,13 +22,12 @@ public class Comment extends TimeStamped {
     @Column(name = "content")
     private String content;
 
-    @Builder
-    public Comment(Long id, String content) {
-        this.id = id;
-        this.content = content;
+
+    public Comment(CommentRequestDto  commentRequestDto) {
+        this.content = commentRequestDto.getContent();
     }
 
-    public void update(String content) {
-        this.content = content;
+    public void update(CommentRequestDto commentRequestDto) {
+        this.content = commentRequestDto.getContent();
     }
 }
