@@ -11,11 +11,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity // Spring Security를 활성화하는 어노테이션
 public class SecurityConfig {
     //AuthenticationManager가 인자로 받을 AuthenticationConfiguraion 객체 생성자 주입
     private final AuthenticationConfiguration authenticationConfiguration;
@@ -27,6 +28,11 @@ public class SecurityConfig {
         this.jwtUtil = jwtUtil;
     }
 
+    // 비밀번호 인코더 (BCrypt)를 Bean으로 등록
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
     //AuthenticationManager Bean 등록
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -34,14 +40,9 @@ public class SecurityConfig {
         return configuration.getAuthenticationManager();
     }
 
+    // SecurityFilterChain을 수동 Bean으로 등록하여 HTTP 보안 규칙 정의
     @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         //csrf disable
         http
@@ -57,17 +58,14 @@ public class SecurityConfig {
 
         //경로별 인가 작업
         http
-                .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/login", "/", "/join").permitAll()
-                        .anyRequest().authenticated());
-
-        //JWTFilter 등록
-        http
-                .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
-
-        //필터 추가 LoginFilter()는 인자를 받음 (AuthenticationManager() 메소드에 authenticationConfiguration 객체를 넣어야 함) 따라서 등록 필요
-        http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
+                // 인가(Authorization, 엔드포인트의 접근 권한) 규칙 정의:
+                .authorizeHttpRequests(authorize -> authorize
+                        // 회원가입 및 로그인 API는 인증 없이 접근을 허용
+                        .requestMatchers("/api/auth/**").permitAll()
+                        // 그 외의 모든 요청은 인증을 요구(==로그인상태 == jwt토큰여부)
+                        // (향후 JWT 필터를 통해 인증될 예정)
+                        .anyRequest().authenticated()
+                );
 
         //세션 설정
         http
