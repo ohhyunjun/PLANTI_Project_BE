@@ -1,6 +1,11 @@
 package com.metaverse.planti_be.plant.entity;
 
-public enum stage {
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
+public enum Stage {
     SEED("Seed"),
     GERMINATION("Germination"),
     MATURE("Mature"),
@@ -8,11 +13,4 @@ public enum stage {
 
     private final String displayName;
 
-    stage(String displayName) {
-        this.displayName = displayName;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
 }
