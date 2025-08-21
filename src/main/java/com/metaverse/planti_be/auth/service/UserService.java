@@ -29,7 +29,7 @@ public class UserService {
                 signUpRequestDto.getUsername(),
                 passwordEncoder.encode(signUpRequestDto.getPassword()),
                 signUpRequestDto.getEmail(),
-                UserRole.ROLE_USER
+                UserRole.ADMIN
         );
 
         userRepository.save(user);
