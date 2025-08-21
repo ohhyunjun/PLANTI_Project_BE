@@ -3,6 +3,7 @@ package com.metaverse.planti_be.auth.config;
 import com.metaverse.planti_be.auth.jwt.JWTFilter;
 import com.metaverse.planti_be.auth.jwt.JWTUtil;
 import com.metaverse.planti_be.auth.jwt.LoginFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,6 +11,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -17,26 +19,23 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity // Spring Security를 활성화하는 어노테이션
+@RequiredArgsConstructor
 public class SecurityConfig {
     //AuthenticationManager가 인자로 받을 AuthenticationConfiguraion 객체 생성자 주입
     private final AuthenticationConfiguration authenticationConfiguration;
-
     private final JWTUtil jwtUtil;
-
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil) {
-        this.authenticationConfiguration = authenticationConfiguration;
-        this.jwtUtil = jwtUtil;
-    }
+    // JWTFilter가 의존하는 UserDetailsService를 주입받음
+    private final UserDetailsService userDetailsService;
 
     // 비밀번호 인코더 (BCrypt)를 Bean으로 등록
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
     //AuthenticationManager Bean 등록
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-
         return configuration.getAuthenticationManager();
     }
 
@@ -66,6 +65,9 @@ public class SecurityConfig {
                         // (향후 JWT 필터를 통해 인증될 예정)
                         .anyRequest().authenticated()
                 );
+        // JWT 검증 필터(JWTFilter)를 등록
+        http
+                .addFilterBefore(new JWTFilter(jwtUtil, userDetailsService), LoginFilter.class);
 
         //세션 설정
         http
