@@ -27,7 +27,7 @@ public class PostController {
     // 게시글 목록 조회 API
     @GetMapping("/posts")
     public ResponseEntity<List<PostResponseDto>> getPosts(){
-        List<PostResponseDto> postResponseDtoList = postService.getPost();
+        List<PostResponseDto> postResponseDtoList = postService.getPosts();
         return ResponseEntity.ok(postResponseDtoList);
     }
 

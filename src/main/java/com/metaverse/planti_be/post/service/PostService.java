@@ -25,7 +25,7 @@ public class PostService {
     }
 
     // 게시글 전체 조회
-    public List<PostResponseDto> getPost() {
+    public List<PostResponseDto> getPosts() {
         List<PostResponseDto> responseList = postRepository
                 .findAllByOrderByCreatedAtDesc()
                 .stream()
