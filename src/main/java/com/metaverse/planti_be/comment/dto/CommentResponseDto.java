@@ -22,6 +22,6 @@ public class CommentResponseDto {
         this.id = comment.getId();
         this.content = comment.getContent();
         this.createdAt = comment.getCreatedAt();
-        this.updatedAt = comment.getUpdateAt();
+        this.updatedAt = comment.getUpdatedAt();
     }
 }
