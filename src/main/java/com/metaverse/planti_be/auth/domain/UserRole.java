@@ -1,4 +1,4 @@
-package com.metaverse.planti_be.auth.entity;
+package com.metaverse.planti_be.auth.domain;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -6,7 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 
 @Getter
 @RequiredArgsConstructor
-public enum UserRole implements GrantedAuthority{
+public enum UserRole implements GrantedAuthority {
     ROLE_USER("ROLE_USER", "일반 사용자"),
     ROLE_ADMIN("ROLE_ADMIN", "관리자");
 
