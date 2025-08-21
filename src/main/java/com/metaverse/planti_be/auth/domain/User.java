@@ -1,5 +1,6 @@
 package com.metaverse.planti_be.auth.domain;
 
+import com.metaverse.planti_be.common.TimeStamped;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,9 +19,8 @@ import java.util.Collections;
 @Getter
 @Setter
 @NoArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
 @Table(name = "user")
-public class User implements UserDetails {
+public class User extends TimeStamped implements UserDetails{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -37,14 +37,6 @@ public class User implements UserDetails {
     @Column(name = "user_role")
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
-
-    @CreatedDate // 엔티티 생성 시 시간 자동 저장
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 
     public User(String username, String password, String email, UserRole userRole) {
         this.username = username;
