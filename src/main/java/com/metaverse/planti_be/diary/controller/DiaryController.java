@@ -3,6 +3,8 @@ package com.metaverse.planti_be.diary.controller;
 import com.metaverse.planti_be.diary.dto.DiaryRequestDto;
 import com.metaverse.planti_be.diary.dto.DiaryResponseDto;
 import com.metaverse.planti_be.diary.service.DiaryService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,23 +19,28 @@ public class DiaryController {
     }
 
     @PostMapping("/diaries")
-    public DiaryResponseDto createDiary(@RequestBody DiaryRequestDto diaryRequestDto){
-        return diaryService.createDiary(diaryRequestDto);
+    public ResponseEntity<DiaryResponseDto> createDiary(@RequestBody DiaryRequestDto diaryRequestDto){
+        DiaryResponseDto diaryResponseDto = diaryService.createDiary(diaryRequestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(diaryResponseDto);
     }
 
     @GetMapping("/diaries")
-    public List<DiaryResponseDto> getDiaries() {
-        return diaryService.getDiaries();
+    public ResponseEntity<List<DiaryResponseDto>> getDiaries() {
+        List<DiaryResponseDto> diaryResponseDtoList = diaryService.getDiaries();
+        return ResponseEntity.ok(diaryResponseDtoList);
     }
 
     @PutMapping("/diaries/{diaryId}")
-    public Long updateDiary(
+    public ResponseEntity<DiaryResponseDto> updateDiary(
             @PathVariable Long diaryId,
             @RequestBody DiaryRequestDto diaryRequestDto) {
-        return diaryService.updateDiary(diaryId, diaryRequestDto);
+        DiaryResponseDto updatedDiary = diaryService.updateDiary(diaryId, diaryRequestDto);
+        return ResponseEntity.ok(updatedDiary);
     }
 
-    public Long deleteDiary(@PathVariable Long diaryId) {
-        return diaryService.deleteDiary(diaryId);
+    @DeleteMapping("/diaries/{diaryId}")
+    public ResponseEntity<Void> deleteDiary(@PathVariable Long diaryId) {
+        diaryService.deleteDiary(diaryId);
+        return ResponseEntity.noContent().build();
     }
 }

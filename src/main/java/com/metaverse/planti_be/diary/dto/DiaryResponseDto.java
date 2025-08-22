@@ -13,6 +13,7 @@ public class DiaryResponseDto {
     private Long id;
     private String title;
     private String content;
+    private String plantName;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
@@ -25,5 +26,6 @@ public class DiaryResponseDto {
         this.content = diary.getContent();
         this.createdAt = diary.getCreatedAt();
         this.updatedAt = diary.getUpdatedAt();
+        this.plantName = diary.getPlant().getName();
     }
 }

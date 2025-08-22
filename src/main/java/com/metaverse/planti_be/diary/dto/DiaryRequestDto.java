@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class DiaryRequestDto {
+    private Long plantId;
     private String title;
     private String content;
 }

@@ -17,6 +17,7 @@ public class PlantService {
         this.plantRepository = plantRepository;
     }
 
+    @Transactional
     public PlantResponseDto createPlant(PlantRequestDto plantRequestDto) {
         Plant plant = new Plant(plantRequestDto);
         Plant savedPlant = plantRepository.save(plant);
