@@ -1,6 +1,7 @@
 package com.metaverse.planti_be.plant.domain;
 
 import com.metaverse.planti_be.common.TimeStamped;
+import com.metaverse.planti_be.diary.domain.Diary;
 import com.metaverse.planti_be.plant.dto.PlantRequestDto;
 import com.metaverse.planti_be.plant.entity.Stage;
 import jakarta.persistence.*;
@@ -9,6 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -30,9 +33,13 @@ public class Plant extends TimeStamped {
     @Column(updatable = false) // 처음 심은 날짜 수정하고싶으면 true
     private LocalDateTime plantedAt;
 
-    @Column(name = "plantStage")
+    @Column(name = "stage")
     @Enumerated(EnumType.STRING)
     private Stage stage;
+
+    @OneToMany(mappedBy = "plant", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<Diary> diaries = new ArrayList<>();
+
 
     public Plant(PlantRequestDto plantRequestDto) {
         this.name = plantRequestDto.getName();

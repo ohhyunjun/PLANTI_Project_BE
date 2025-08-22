@@ -2,10 +2,14 @@ package com.metaverse.planti_be.diary.domain;
 
 import com.metaverse.planti_be.common.TimeStamped;
 import com.metaverse.planti_be.diary.dto.DiaryRequestDto;
+import com.metaverse.planti_be.plant.domain.Plant;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -23,6 +27,10 @@ public class Diary extends TimeStamped {
 
     @Column(length = 1000, nullable = false, columnDefinition = "TEXT")
     private String content;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "plant_id", nullable = false)
+    private Plant plant;
 
     public Diary(DiaryRequestDto diaryRequestDto) {
         this.title = diaryRequestDto.getTitle();
