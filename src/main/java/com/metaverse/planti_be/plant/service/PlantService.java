@@ -6,6 +6,7 @@ import com.metaverse.planti_be.plant.dto.PlantResponseDto;
 import com.metaverse.planti_be.plant.repository.PlantRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -19,32 +20,40 @@ public class PlantService {
 
     @Transactional
     public PlantResponseDto createPlant(PlantRequestDto plantRequestDto) {
-        Plant plant = new Plant(plantRequestDto);
+        Plant plant = new Plant(
+                plantRequestDto.getName(),
+                plantRequestDto.getSpecies(),
+                plantRequestDto.getPlantedAt()
+        );
         Plant savedPlant = plantRepository.save(plant);
         PlantResponseDto plantResponseDto = new PlantResponseDto(savedPlant);
         return  plantResponseDto;
     }
 
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<PlantResponseDto> getPlants() {
-        List<PlantResponseDto> responseList = plantRepository
+        List<PlantResponseDto> plantResponseDtoList = plantRepository
                 .findAllByOrderByPlantedAtAsc()
                 .stream()
                 .map(PlantResponseDto::new)
                 .toList();
-        return responseList;
+        return plantResponseDtoList;
     }
 
     @Transactional
-    public Long updatePlant(Long plantId, PlantRequestDto plantRequestDto) {
+    public PlantResponseDto updatePlant(Long plantId, PlantRequestDto plantRequestDto) {
         Plant plant = findPlant(plantId);
-        plant.update(plantRequestDto);
-        return plantId;
+        plant.update(
+                plantRequestDto.getName(),
+                plantRequestDto.getSpecies()
+        );
+        return new PlantResponseDto(plant);
     }
 
-    public Long deletePlant(Long plantId) {
+    @Transactional
+    public void deletePlant(Long plantId) {
         Plant plant = findPlant(plantId);
         plantRepository.delete(plant);
-        return plantId;
     }
 
     private Plant findPlant(Long plantId) {

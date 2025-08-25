@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,7 @@ public class Plant extends TimeStamped {
     @Column(updatable = false) // 처음 심은 날짜 수정하고싶으면 true
     private LocalDateTime plantedAt;
 
+    // enum 미구현
     @Column(name = "stage")
     @Enumerated(EnumType.STRING)
     private Stage stage;
@@ -41,14 +43,15 @@ public class Plant extends TimeStamped {
     List<Diary> diaries = new ArrayList<>();
 
 
-    public Plant(PlantRequestDto plantRequestDto) {
-        this.name = plantRequestDto.getName();
-        this.species = plantRequestDto.getSpecies();
+    public Plant(String name, String species, LocalDateTime plantedAt) {
+        this.name = name;
+        this.species = species;
+        this.plantedAt = plantedAt;
     }
 
-    public void update(PlantRequestDto plantRequestDto) {
-        this.name = plantRequestDto.getName();
-        this.species = plantRequestDto.getSpecies();
+    public void update(String name, String species) {
+        this.name = name;
+        this.species = species;
     }
 
 }

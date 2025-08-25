@@ -1,8 +1,11 @@
 package com.metaverse.planti_be.plant.controller;
 
+import com.metaverse.planti_be.diary.dto.DiaryResponseDto;
 import com.metaverse.planti_be.plant.dto.PlantRequestDto;
 import com.metaverse.planti_be.plant.dto.PlantResponseDto;
 import com.metaverse.planti_be.plant.service.PlantService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,22 +20,26 @@ public class PlantController {
     }
 
     @PostMapping("/plants")
-    public PlantResponseDto createPlant(PlantRequestDto plantRequestDto) {
-        return plantService.createPlant(plantRequestDto);
+    public ResponseEntity<PlantResponseDto> createPlant(@RequestBody PlantRequestDto plantRequestDto) {
+        PlantResponseDto plantResponseDto = plantService.createPlant(plantRequestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(plantResponseDto);
     }
 
     @GetMapping("/plants")
-    public List<PlantResponseDto> getPlants() {
-        return plantService.getPlants();
+    public ResponseEntity<List<PlantResponseDto>> getPlants() {
+        List<PlantResponseDto> plantResponseDtoList = plantService.getPlants();
+        return ResponseEntity.ok(plantResponseDtoList);
     }
 
     @PutMapping("/plants/{plantId}")
-    public Long updatePlant(@PathVariable Long plantId, PlantRequestDto plantRequestDto) {
-        return plantService.updatePlant(plantId, plantRequestDto);
+    public ResponseEntity<PlantResponseDto> updatePlant(@PathVariable Long plantId, PlantRequestDto plantRequestDto) {
+        PlantResponseDto updatedPlant = plantService.updatePlant(plantId, plantRequestDto);
+        return ResponseEntity.ok(updatedPlant);
     }
 
     @DeleteMapping("/plants/{plantId}")
-    public Long deletePlant(@PathVariable Long plantId) {
-        return plantService.deletePlant(plantId);
+    public ResponseEntity<Void> deletePlant(@PathVariable Long plantId) {
+        plantService.deletePlant(plantId);
+        return ResponseEntity.noContent().build();
     }
 }
