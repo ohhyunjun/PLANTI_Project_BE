@@ -5,49 +5,59 @@ import com.metaverse.planti_be.diary.dto.DiaryRequestDto;
 import com.metaverse.planti_be.diary.dto.DiaryResponseDto;
 import com.metaverse.planti_be.diary.repository.DiaryRepository;
 import com.metaverse.planti_be.plant.domain.Plant;
+import com.metaverse.planti_be.plant.dto.PlantResponseDto;
 import com.metaverse.planti_be.plant.repository.PlantRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class DiaryService {
     private final DiaryRepository diaryRepository;
     private final PlantRepository plantRepository;
 
-    public DiaryService(DiaryRepository diaryRepository, PlantRepository plantRepository) {
-        this.diaryRepository = diaryRepository;
-        this.plantRepository = plantRepository;
-    }
-
     @Transactional
-    public DiaryResponseDto createDiary(DiaryRequestDto diaryRequestDto) {
-        Plant plant = plantRepository.findById(diaryRequestDto.getPlantId()).orElseThrow(()->
-                new IllegalArgumentException("해당 plant를 찾을 수 없습니다.")
-        );
+    public DiaryResponseDto createDiary(Long plantId, DiaryRequestDto diaryRequestDto) {
+        Plant plant = getValidPlant(plantId);
+
         Diary diary = new Diary(
                 diaryRequestDto.getTitle(),
                 diaryRequestDto.getContent(),
-                plant);
+                plant
+        );
         Diary savedDiary = diaryRepository.save(diary);
-        DiaryResponseDto diaryResponseDto = new DiaryResponseDto(savedDiary);
-        return diaryResponseDto;
+        return new DiaryResponseDto(savedDiary);
     }
 
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<DiaryResponseDto> getDiaries() {
-        List<DiaryResponseDto> diaryResponseDtoList = diaryRepository
-                .findAllByOrderByCreatedAtAsc()
-                .stream()
+        return diaryRepository.findAllByOrderByCreatedAtAsc().stream()
                 .map(DiaryResponseDto::new)
-                .toList();
-        return diaryResponseDtoList;
+                .collect(Collectors.toList());
+    }
+
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public List<DiaryResponseDto> getDiariesByPlantId(Long plantId) {
+        getValidPlant(plantId);
+
+        return diaryRepository.findByPlantIdOrderByCreatedAtAsc(plantId).stream()
+                .map(DiaryResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public DiaryResponseDto getDiaryById(Long plantId, Long diaryId) {
+        Diary diary = getValidDiary(plantId, diaryId);
+        return new DiaryResponseDto(diary);
     }
 
     @Transactional
-    public DiaryResponseDto updateDiary(Long diaryId, DiaryRequestDto diaryRequestDto) {
-        Diary diary = findDiary(diaryId);
+    public DiaryResponseDto updateDiary(Long plantId, Long diaryId, DiaryRequestDto diaryRequestDto) {
+        Diary diary = getValidDiary(plantId, diaryId);
         diary.update(
                 diaryRequestDto.getTitle(),
                 diaryRequestDto.getContent()
@@ -56,14 +66,22 @@ public class DiaryService {
     }
 
     @Transactional
-    public void deleteDiary(Long diaryId) {
-        Diary diary = findDiary(diaryId);
+    public void deleteDiary(Long plantId, Long diaryId) {
+        Diary diary = getValidDiary(plantId, diaryId);
         diaryRepository.delete(diary);
     }
 
-    private Diary findDiary(Long diaryId) {
-        return diaryRepository.findById(diaryId).orElseThrow(()->
-                new IllegalArgumentException("해당 다이어리는 존재하지 않습니다.")
+    private Plant getValidPlant(Long plantId) {
+        return plantRepository.findById(plantId).orElseThrow(()->
+                new IllegalArgumentException("해당 식물을 찾을 수 없습니다. Plant ID:" + plantId)
+        );
+    }
+
+    private Diary getValidDiary(Long plantId, Long diaryId) {
+        Plant plant = getValidPlant(plantId);
+
+        return diaryRepository.findByIdAndPlantId(diaryId, plant.getId()).orElseThrow(()->
+                new IllegalArgumentException("식물(ID: " + plantId + ")에서 다이어리(ID: "+ diaryId + ")을 찾을 수 없습니다.")
         );
     }
 }
