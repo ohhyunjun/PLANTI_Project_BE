@@ -7,7 +7,6 @@ import com.metaverse.planti_be.sensor.dto.SensorLogRequestDto;
 import com.metaverse.planti_be.sensor.repository.SensorLogRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 @Service

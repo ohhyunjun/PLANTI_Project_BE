@@ -1,11 +1,9 @@
 package com.metaverse.planti_be.device.domain;
 
-import com.metaverse.planti_be.sensor.domain.SensorType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
