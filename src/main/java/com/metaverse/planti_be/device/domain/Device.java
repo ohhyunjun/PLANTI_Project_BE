@@ -18,16 +18,4 @@ public class Device {
     @Column(length = 100)
     private String serial_number;
 
-    @Column(length = 20)
-    private String ip;
-
-    @Column(length = 20)
-    private String status;
-
-    private LocalDateTime connect_time;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "sensor_type")
-    private SensorType sensor_type;
-
 }
