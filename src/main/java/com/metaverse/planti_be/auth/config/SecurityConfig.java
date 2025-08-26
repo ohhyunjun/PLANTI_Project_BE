@@ -48,7 +48,8 @@ public class SecurityConfig {
 
                 // 인가(Authorization, 엔드포인트의 접근 권한) 규칙 정의:
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/auth/**", "/api/sensor_log/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/sensor_log/**",
+                                "/api/posts/**", "/api/auth/check-username").permitAll()
                         .anyRequest().authenticated()
                 )
 
