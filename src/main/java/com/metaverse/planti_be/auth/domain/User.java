@@ -1,6 +1,7 @@
 package com.metaverse.planti_be.auth.domain;
 
 import com.metaverse.planti_be.common.TimeStamped;
+import com.metaverse.planti_be.device.domain.Device;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,8 +9,10 @@ import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 @Entity
 @Getter
@@ -33,6 +36,9 @@ public class User extends TimeStamped implements UserDetails{
     @Column(name = "user_role")
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
+
+    @OneToMany
+    private List<Device> devices = new ArrayList<>();
 
     public User(String username, String password, String email, UserRole userRole) {
         this.username = username;
