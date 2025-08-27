@@ -21,7 +21,7 @@ public class SensorLogService {
     public void createSensorLog(SensorLogRequestDto sensorLogDto) {
         // 1. DTO의 serial_number로 Device 엔티티를 찾습니다.
         //    (해당 장치가 없으면 예외 발생)
-        Device device = deviceRepository.findById(sensorLogDto.getSerial_number())
+        Device device = deviceRepository.findById(sensorLogDto.getSerialNumber())
                 .orElseThrow(() -> new IllegalArgumentException("해당 시리얼 넘버를 가진 장치가 존재하지 않습니다."));
 
         // 2. 새로운 SensorLog 엔티티를 생성합니다.

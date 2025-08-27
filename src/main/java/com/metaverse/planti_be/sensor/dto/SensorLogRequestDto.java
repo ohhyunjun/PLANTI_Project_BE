@@ -10,5 +10,5 @@ import lombok.Setter;
 public class SensorLogRequestDto {
     private String sensor_type;
     private String value;
-    private String serial_number;
+    private String serialNumber;
 }
