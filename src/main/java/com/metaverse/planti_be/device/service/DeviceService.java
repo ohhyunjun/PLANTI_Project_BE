@@ -2,6 +2,7 @@ package com.metaverse.planti_be.device.service;
 
 import com.metaverse.planti_be.auth.domain.User;
 import com.metaverse.planti_be.device.domain.Device;
+import com.metaverse.planti_be.device.dto.DeviceCreateRequestDto;
 import com.metaverse.planti_be.device.repository.DeviceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,8 +27,19 @@ public class DeviceService {
 
         // 4. 기기의 상태를 변경합니다.
         device.setStatus(true);
+    }
+    // 관리자용 기기 생성 메서드
+    @Transactional
+    public void createDeviceByAdmin(DeviceCreateRequestDto requestDto) {
+        if (deviceRepository.existsById(requestDto.getSerialNumber())) {
+            throw new IllegalArgumentException("이미 존재하는 시리얼 번호입니다.");
+        }
 
+        // Device 생성자에 시리얼 번호와 닉네임을 전달
+        // 생성자 내부에서 createLed()가 호출되어 Led도 함께 생성됩니다.
+        Device newDevice = new Device(requestDto.getSerialNumber(), requestDto.getDeviceNickname());
 
-
+        // Device만 저장하면 Cascade 옵션에 의해 Led도 함께 저장됩니다.
+        deviceRepository.save(newDevice);
     }
 }

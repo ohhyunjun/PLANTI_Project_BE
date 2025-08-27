@@ -2,11 +2,13 @@ package com.metaverse.planti_be.device.controller;
 
 import com.metaverse.planti_be.auth.domain.PrincipalDetails;
 import com.metaverse.planti_be.auth.domain.User;
+import com.metaverse.planti_be.device.dto.DeviceCreateRequestDto;
 import com.metaverse.planti_be.device.dto.DeviceRegistrationRequestDto;
 import com.metaverse.planti_be.device.service.DeviceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,6 +38,17 @@ public class DeviceController {
         } catch (IllegalArgumentException e) { // DeviceService에서 기기를 못 찾은 경우
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (IllegalStateException e) { // DeviceService에서 이미 등록된 기기인 경우
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+    // 관리자용 기기 생성 API
+    @PostMapping("/admin/create")
+    @PreAuthorize("hasRole('ADMIN')") // ADMIN 역할을 가진 사용자만 이 API를 호출할 수 있습니다.
+    public ResponseEntity<String> createDevice(@RequestBody DeviceCreateRequestDto requestDto) {
+        try {
+            deviceService.createDeviceByAdmin(requestDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body("기기가 성공적으로 생성되었습니다.");
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
