@@ -33,8 +33,8 @@ public class PlantController {
 
     @PutMapping("/plants/{plantId}")
     public ResponseEntity<PlantResponseDto> updatePlant(@PathVariable Long plantId, PlantRequestDto plantRequestDto) {
-        PlantResponseDto updatedPlant = plantService.updatePlant(plantId, plantRequestDto);
-        return ResponseEntity.ok(updatedPlant);
+        PlantResponseDto updatePlant = plantService.updatePlant(plantId, plantRequestDto);
+        return ResponseEntity.ok(updatePlant);
     }
 
     @DeleteMapping("/plants/{plantId}")
