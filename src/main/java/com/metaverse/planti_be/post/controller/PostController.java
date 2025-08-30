@@ -17,30 +17,31 @@ public class PostController {
 
     private final PostService postService;
 
-    // 게시글 작성 API
     @PostMapping("/posts")
-    public ResponseEntity<PostResponseDto> createPost(@RequestBody PostRequestDto postRequestDto){
+    public ResponseEntity<PostResponseDto> createPost(
+            @RequestBody PostRequestDto postRequestDto){
         PostResponseDto postResponseDto = postService.createPost(postRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(postResponseDto);
     }
 
-    // 게시글 목록 조회 API
     @GetMapping("/posts")
     public ResponseEntity<List<PostResponseDto>> getPosts(){
         List<PostResponseDto> postResponseDtoList = postService.getPosts();
         return ResponseEntity.ok(postResponseDtoList);
     }
 
-
-    // 게시글 수정 API
-    @PutMapping("/posts/{id}")
-    public Long updatePost(@PathVariable Long id, @RequestBody PostRequestDto postRequestDto){
-        return postService.updatePost(id, postRequestDto);
+    @PutMapping("/posts/{postId}")
+    public ResponseEntity<PostResponseDto> updatePost(
+            @PathVariable Long postId,
+            @RequestBody PostRequestDto postRequestDto){
+        PostResponseDto updatedPost = postService.updatePost(postId, postRequestDto);
+        return ResponseEntity.ok(updatedPost);
     }
 
-    // 게시글 삭제 API
-    @DeleteMapping("/posts/{id}")
-    public Long deletePost(@PathVariable Long id){
-        return postService.deletePost(id);
+    @DeleteMapping("/posts/{postId}")
+    public ResponseEntity<Void> deletePost(
+            @PathVariable Long postId){
+        postService.deletePost(postId);
+        return ResponseEntity.noContent().build();
     }
 }

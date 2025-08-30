@@ -12,44 +12,49 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class PostService {
 
     private final PostRepository postRepository;
 
+    @Transactional
     public PostResponseDto createPost(PostRequestDto postRequestDto) {
-        Post post = new Post(postRequestDto);
+        Post post = new Post(
+                postRequestDto.getTitle(),
+                postRequestDto.getContent()
+        );
         Post savedPost = postRepository.save(post);
         PostResponseDto postResponseDto = new PostResponseDto(savedPost);
         return postResponseDto;
     }
 
-    // 게시글 전체 조회
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<PostResponseDto> getPosts() {
-        List<PostResponseDto> responseList = postRepository
+        List<PostResponseDto> PostResponseDto = postRepository
                 .findAllByOrderByCreatedAtDesc()
                 .stream()
                 .map(PostResponseDto::new)
                 .toList();
-        return responseList;
+        return PostResponseDto;
     }
 
-    // 게시글 수정
-    public Long updatePost(Long id, PostRequestDto postRequestDto){
-        Post post = findPost(id);
-        post.update(postRequestDto);
-        return id;
+    @Transactional
+    public PostResponseDto updatePost(Long postId, PostRequestDto postRequestDto){
+        Post post = findPost(postId);
+        post.update(
+                postRequestDto.getTitle(),
+                postRequestDto.getContent()
+        );
+        return new PostResponseDto(post);
     }
 
-    // 게시글 삭제
-    public Long deletePost(Long id){
-        Post post = findPost(id);
+    @Transactional
+    public void deletePost(Long postId){
+        Post post = findPost(postId);
         postRepository.delete(post);
-        return id;
     }
 
-    private Post findPost(Long id) {
-        return postRepository.findById(id).orElseThrow(() ->
+    private Post findPost(Long postId) {
+        return postRepository.findById(postId).orElseThrow(() ->
                 new IllegalArgumentException("해당 게시글은 존재하지 않습니다.")
         );
     }
