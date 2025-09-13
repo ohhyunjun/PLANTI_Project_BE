@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class AiArtService {
+
     private final AiArtRepository aiArtRepository;
     private final PlantRepository plantRepository;
 

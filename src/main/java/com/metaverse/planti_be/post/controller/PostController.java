@@ -17,6 +17,7 @@ public class PostController {
 
     private final PostService postService;
 
+    // 글 만들기
     @PostMapping("/posts")
     public ResponseEntity<PostResponseDto> createPost(
             @RequestBody PostRequestDto postRequestDto){
@@ -24,12 +25,22 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(postResponseDto);
     }
 
+    // 전체 글 불러오기
     @GetMapping("/posts")
     public ResponseEntity<List<PostResponseDto>> getPosts(){
         List<PostResponseDto> postResponseDtoList = postService.getPosts();
         return ResponseEntity.ok(postResponseDtoList);
     }
 
+    // 특정 글 불러오기
+    @GetMapping("/posts/{postId}")
+    public ResponseEntity<PostResponseDto> getPostById(
+            @PathVariable Long postId){
+        PostResponseDto postResponseDto = postService.getPostById(postId);
+        return ResponseEntity.ok(postResponseDto);
+    }
+
+    // 특정 글 수정하기
     @PutMapping("/posts/{postId}")
     public ResponseEntity<PostResponseDto> updatePost(
             @PathVariable Long postId,
@@ -38,6 +49,7 @@ public class PostController {
         return ResponseEntity.ok(updatedPost);
     }
 
+    // 특정 글 지우기
     @DeleteMapping("/posts/{postId}")
     public ResponseEntity<Void> deletePost(
             @PathVariable Long postId){

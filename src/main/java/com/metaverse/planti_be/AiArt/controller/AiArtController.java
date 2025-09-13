@@ -1,6 +1,5 @@
 package com.metaverse.planti_be.AiArt.controller;
 
-import com.metaverse.planti_be.AiArt.domain.AiArt;
 import com.metaverse.planti_be.AiArt.dto.AiArtRequestDto;
 import com.metaverse.planti_be.AiArt.dto.AiArtResponseDto;
 import com.metaverse.planti_be.AiArt.service.AiArtService;
@@ -15,6 +14,7 @@ import java.util.List;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class AiArtController {
+
     private final AiArtService aiArtService;
 
     // 해당 식물의 아트 만들기
@@ -50,7 +50,7 @@ public class AiArtController {
         return ResponseEntity.ok(aiArtResponseDto);
     }
 
-    // 해당 식물의 특정 아트 변경
+    // 해당 식물의 특정 아트 수정
     @PutMapping("/plants/{plantId}/aiArts/{aiArtId}")
     public ResponseEntity<AiArtResponseDto> updateAiArt(
             @PathVariable Long plantId,

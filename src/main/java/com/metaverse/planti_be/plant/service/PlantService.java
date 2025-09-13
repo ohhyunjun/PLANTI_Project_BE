@@ -5,17 +5,16 @@ import com.metaverse.planti_be.plant.dto.PlantRequestDto;
 import com.metaverse.planti_be.plant.dto.PlantResponseDto;
 import com.metaverse.planti_be.plant.repository.PlantRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class PlantService {
-    private final PlantRepository plantRepository;
 
-    public PlantService(PlantRepository plantRepository) {
-        this.plantRepository = plantRepository;
-    }
+    private final PlantRepository plantRepository;
 
     @Transactional
     public PlantResponseDto createPlant(PlantRequestDto plantRequestDto) {
@@ -41,7 +40,7 @@ public class PlantService {
     }
 
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
-    public PlantResponseDto getPlantByPlantId(Long plantId) {
+    public PlantResponseDto getPlantById(Long plantId) {
         Plant plant = findPlant(plantId);
         return new PlantResponseDto(plant);
     }

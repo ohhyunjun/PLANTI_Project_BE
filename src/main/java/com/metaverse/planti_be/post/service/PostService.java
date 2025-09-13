@@ -29,12 +29,18 @@ public class PostService {
 
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<PostResponseDto> getPosts() {
-        List<PostResponseDto> PostResponseDto = postRepository
+        List<PostResponseDto> PostResponseDtoList = postRepository
                 .findAllByOrderByCreatedAtDesc()
                 .stream()
                 .map(PostResponseDto::new)
                 .toList();
-        return PostResponseDto;
+        return PostResponseDtoList;
+    }
+
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public PostResponseDto getPostById(Long postId) {
+        Post post = findPost(postId);
+        return new PostResponseDto(post);
     }
 
     @Transactional

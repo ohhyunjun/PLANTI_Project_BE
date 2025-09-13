@@ -1,6 +1,7 @@
 package com.metaverse.planti_be.comment.repository;
 
 import com.metaverse.planti_be.comment.domain.Comment;
+import com.metaverse.planti_be.post.domain.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
