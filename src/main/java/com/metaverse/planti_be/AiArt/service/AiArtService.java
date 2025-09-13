@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,9 +20,9 @@ public class AiArtService {
     private final PlantRepository plantRepository;
 
     @Transactional
-    public AiArtResponseDto createAiArt(AiArtRequestDto aiArtRequestDto) {
-        Plant plant = plantRepository.findById(aiArtRequestDto.getPlantId()).orElseThrow(()->
-                new IllegalArgumentException("해당 식물을 찾을 수 없습니다.")
+    public AiArtResponseDto createAiArt(Long plantId, AiArtRequestDto aiArtRequestDto) {
+        Plant plant = plantRepository.findById(plantId).orElseThrow(()->
+                new IllegalArgumentException("해당 식물을 찾을 수 없습니다. Plant Id: " + plantId)
         );
         AiArt aiArt = new AiArt(
                 aiArtRequestDto.getOriginalImageUrl(),
@@ -30,22 +31,36 @@ public class AiArtService {
                 plant
         );
         AiArt savedAiArt = aiArtRepository.save(aiArt);
-        AiArtResponseDto aiArtResponseDto = new AiArtResponseDto(savedAiArt);
-        return aiArtResponseDto;
+        return new AiArtResponseDto(savedAiArt);
     }
 
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<AiArtResponseDto> getAiArts() {
-        List<AiArtResponseDto> aiArtResponseDtoList = aiArtRepository.findAllByOrderByCreatedAtDesc()
+        return aiArtRepository.findAllByOrderByCreatedAtDesc()
                 .stream()
                 .map(AiArtResponseDto::new)
-                .toList();
-        return aiArtResponseDtoList;
+                .collect(Collectors.toList());
+    }
+
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public List<AiArtResponseDto> getAiArtsByPlantId(Long plantId) {
+        plantRepository.findById(plantId).orElseThrow(()->
+                new IllegalArgumentException("해당 식물을 찾을 수 없습니다. Plant ID: " +  plantId)
+        );
+        return aiArtRepository.findByPlantIdOrderByCreatedAtDesc(plantId).stream()
+                .map(AiArtResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public AiArtResponseDto getAiArtById(Long plantId, Long aiArtId) {
+        AiArt aiArt = findAiArtByPlantIdAndAiArtId(plantId, aiArtId);
+        return new AiArtResponseDto(aiArt);
     }
 
     @Transactional
-    public AiArtResponseDto updateAiArt(Long aiArtId, AiArtRequestDto aiArtRequestDto) {
-        AiArt aiArt = findAiArt(aiArtId);
+    public AiArtResponseDto updateAiArt(Long plantId, Long aiArtId, AiArtRequestDto aiArtRequestDto) {
+        AiArt aiArt = findAiArtByPlantIdAndAiArtId(plantId, aiArtId);
         aiArt.update(
                 aiArtRequestDto.getOriginalImageUrl(),
                 aiArtRequestDto.getStyle()
@@ -54,14 +69,18 @@ public class AiArtService {
     }
 
     @Transactional
-    public void deleteAiArt(Long aiArtId) {
-        AiArt aiArt = findAiArt(aiArtId);
+    public void deleteAiArt(Long plantId, Long aiArtId) {
+        AiArt aiArt = findAiArtByPlantIdAndAiArtId(plantId, aiArtId);
         aiArtRepository.delete(aiArt);
     }
 
-    private AiArt findAiArt(Long aiArtId) {
-        return aiArtRepository.findById(aiArtId).orElseThrow(() ->
-                new IllegalArgumentException("해당 AI 아트는 존재하지 않습니다.")
+    private AiArt findAiArtByPlantIdAndAiArtId(Long plantId, Long aiArtId) {
+        plantRepository.findById(plantId).orElseThrow(() ->
+                new IllegalArgumentException("해당 식물을 찾을 수 없습니다. Plant ID: " +  plantId)
+        );
+
+        return aiArtRepository.findByIdAndPlantId(aiArtId, plantId).orElseThrow(() ->
+                new IllegalArgumentException("해당 식물(ID: " + plantId + ")에서 게시글(ID: " + aiArtId + ")을 찾을 수 없습니다.")
         );
     }
 

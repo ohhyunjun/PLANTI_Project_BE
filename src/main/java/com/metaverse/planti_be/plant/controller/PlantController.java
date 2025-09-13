@@ -30,6 +30,12 @@ public class PlantController {
         return ResponseEntity.ok(plantResponseDtoList);
     }
 
+    @GetMapping("/plants/{plantId}")
+    public ResponseEntity<PlantResponseDto> getPlantByPlantId(@PathVariable Long plantId) {
+        PlantResponseDto plantResponseDto = plantService.getPlantByPlantId(plantId);
+        return ResponseEntity.ok(plantResponseDto);
+    }
+
     @PutMapping("/plants/{plantId}")
     public ResponseEntity<PlantResponseDto> updatePlant(@PathVariable Long plantId, PlantRequestDto plantRequestDto) {
         PlantResponseDto updatePlant = plantService.updatePlant(plantId, plantRequestDto);

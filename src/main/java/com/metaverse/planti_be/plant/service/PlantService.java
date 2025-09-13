@@ -40,6 +40,12 @@ public class PlantService {
         return plantResponseDtoList;
     }
 
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public PlantResponseDto getPlantByPlantId(Long plantId) {
+        Plant plant = findPlant(plantId);
+        return new PlantResponseDto(plant);
+    }
+
     @Transactional
     public PlantResponseDto updatePlant(Long plantId, PlantRequestDto plantRequestDto) {
         Plant plant = findPlant(plantId);
