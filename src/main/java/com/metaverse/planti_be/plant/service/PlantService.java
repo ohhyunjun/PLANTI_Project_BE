@@ -6,7 +6,6 @@ import com.metaverse.planti_be.plant.dto.PlantResponseDto;
 import com.metaverse.planti_be.plant.repository.PlantRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -23,11 +22,12 @@ public class PlantService {
         Plant plant = new Plant(
                 plantRequestDto.getName(),
                 plantRequestDto.getSpecies(),
-                plantRequestDto.getPlantedAt()
+                plantRequestDto.getPlantedAt(),
+                plantRequestDto.getPlantStage()
         );
         Plant savedPlant = plantRepository.save(plant);
         PlantResponseDto plantResponseDto = new PlantResponseDto(savedPlant);
-        return  plantResponseDto;
+        return plantResponseDto;
     }
 
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
@@ -45,7 +45,8 @@ public class PlantService {
         Plant plant = findPlant(plantId);
         plant.update(
                 plantRequestDto.getName(),
-                plantRequestDto.getSpecies()
+                plantRequestDto.getSpecies(),
+                plantRequestDto.getPlantStage()
         );
         return new PlantResponseDto(plant);
     }
@@ -62,7 +63,5 @@ public class PlantService {
         );
     }
 
-
-    // enum 상태에서 초기상태를 설정해줘야한다.
-
 }
+

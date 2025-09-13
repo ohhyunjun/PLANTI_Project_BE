@@ -1,6 +1,7 @@
 package com.metaverse.planti_be.plant.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.metaverse.planti_be.AiArt.dto.AiArtResponseDto;
 import com.metaverse.planti_be.diary.dto.DiaryResponseDto;
 import com.metaverse.planti_be.plant.domain.Plant;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,7 @@ public class PlantResponseDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime plantedAt;
     private List<DiaryResponseDto> diaries;
+    private List<AiArtResponseDto> aiArts;
 
     public PlantResponseDto(Plant plant) {
         this.id = plant.getId();
@@ -29,6 +31,11 @@ public class PlantResponseDto {
         this.diaries = plant.getDiaries()
                 .stream()
                 .map(DiaryResponseDto::new)
+                .collect(Collectors.toList()
+                );
+        this.aiArts = plant.getAiArts()
+                .stream()
+                .map(AiArtResponseDto::new)
                 .collect(Collectors.toList()
                 );
     }

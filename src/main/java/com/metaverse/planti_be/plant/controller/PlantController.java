@@ -1,6 +1,5 @@
 package com.metaverse.planti_be.plant.controller;
 
-import com.metaverse.planti_be.diary.dto.DiaryResponseDto;
 import com.metaverse.planti_be.plant.dto.PlantRequestDto;
 import com.metaverse.planti_be.plant.dto.PlantResponseDto;
 import com.metaverse.planti_be.plant.service.PlantService;

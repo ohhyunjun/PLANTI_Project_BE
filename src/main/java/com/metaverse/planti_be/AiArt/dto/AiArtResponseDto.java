@@ -14,6 +14,7 @@ public class AiArtResponseDto {
     private String originalImageUrl;
     private String artImageUrl;
     private String style;
+    private String plantName;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
@@ -27,5 +28,6 @@ public class AiArtResponseDto {
         this.style = aiArt.getStyle();
         this.createdAt = aiArt.getCreatedAt();
         this.updatedAt = aiArt.getUpdatedAt();
+        this.plantName = aiArt.getPlant().getName();
     }
 }

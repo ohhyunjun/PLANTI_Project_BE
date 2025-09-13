@@ -32,14 +32,14 @@ public class AiArt extends TimeStamped {
     @JoinColumn(name = "plant_id", nullable = false)
     private Plant plant;
 
-    public AiArt(AiArtRequestDto aiArtRequestDto) {
-        this.originalImageUrl = aiArtRequestDto.getOriginalImageUrl();
-        this.artImageUrl = aiArtRequestDto.getArtImageUrl();
-        this.style = aiArtRequestDto.getStyle();
+    public AiArt(String originalImageUrl, String artImageUrl, String style, Plant plant) {
+        this.originalImageUrl = originalImageUrl;
+        this.artImageUrl = artImageUrl;
+        this.style = style;
+        this.plant = plant;
     }
-    public void update(AiArtRequestDto aiArtRequestDto) {
-        this.originalImageUrl = aiArtRequestDto.getOriginalImageUrl();
-        this.artImageUrl = aiArtRequestDto.getArtImageUrl();
-        this.style = aiArtRequestDto.getStyle();
+    public void update(String originalImageUrl, String style) {
+        this.originalImageUrl = originalImageUrl;
+        this.style = style;
     }
 }

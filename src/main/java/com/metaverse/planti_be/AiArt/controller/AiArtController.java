@@ -4,6 +4,8 @@ import com.metaverse.planti_be.AiArt.dto.AiArtRequestDto;
 import com.metaverse.planti_be.AiArt.dto.AiArtResponseDto;
 import com.metaverse.planti_be.AiArt.service.AiArtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,23 +17,31 @@ public class AiArtController {
     private final AiArtService aiArtService;
 
     @PostMapping("/aiArts")
-    public AiArtResponseDto createAiArt(@RequestBody AiArtRequestDto aiArtRequestDto) {
-        return aiArtService.createAiArt(aiArtRequestDto);
+    public ResponseEntity<AiArtResponseDto> createAiArt(
+            @RequestBody AiArtRequestDto aiArtRequestDto) {
+        AiArtResponseDto aiArtResponseDto = aiArtService.createAiArt(aiArtRequestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(aiArtResponseDto);
     }
 
     @GetMapping("/aiArts")
-    public List<AiArtResponseDto> getAiArts() {
-        return aiArtService.getAiArts();
+    public ResponseEntity<List<AiArtResponseDto>> getAiArts() {
+        List<AiArtResponseDto> aiArtResponseDtoList = aiArtService.getAiArts();
+        return ResponseEntity.ok(aiArtResponseDtoList);
     }
 
-    @PutMapping("/aiArts/{id}")
-    public Long updateAiArt(@PathVariable Long id, @RequestBody AiArtRequestDto aiArtRequestDto) {
-        return aiArtService.updateAiArt(id, aiArtRequestDto);
+    @PutMapping("/aiArts/{aiArtId}")
+    public ResponseEntity<AiArtResponseDto> updateAiArt(
+            @PathVariable Long aiArtId,
+            @RequestBody AiArtRequestDto aiArtRequestDto) {
+        AiArtResponseDto updatedAiArt = aiArtService.updateAiArt(aiArtId, aiArtRequestDto);
+        return ResponseEntity.ok(updatedAiArt);
     }
 
-    @DeleteMapping("/aiArts/{id}")
-    public Long deleteAiArt(@PathVariable Long id) {
-        return aiArtService.deleteAiArt(id);
+    @DeleteMapping("/aiArts/{aiArtId}")
+    public ResponseEntity<Void> deleteAiArt(
+            @PathVariable Long aiArtId) {
+        aiArtService.deleteAiArt(aiArtId);
+        return ResponseEntity.noContent().build();
     }
 
 }

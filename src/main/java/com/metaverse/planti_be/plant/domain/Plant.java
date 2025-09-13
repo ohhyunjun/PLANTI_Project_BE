@@ -3,7 +3,6 @@ package com.metaverse.planti_be.plant.domain;
 import com.metaverse.planti_be.AiArt.domain.AiArt;
 import com.metaverse.planti_be.common.TimeStamped;
 import com.metaverse.planti_be.diary.domain.Diary;
-import com.metaverse.planti_be.plant.entity.Stage;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,27 +32,27 @@ public class Plant extends TimeStamped {
     @Column(updatable = false) // 처음 심은 날짜 수정하고싶으면 true
     private LocalDateTime plantedAt;
 
-    // enum 미구현
-    @Column(name = "stage")
     @Enumerated(EnumType.STRING)
-    private Stage stage;
+    @Column(nullable = false)
+    private PlantStage plantStage;
 
     @OneToMany(mappedBy = "plant", cascade = CascadeType.ALL, orphanRemoval = true)
     List<Diary> diaries = new ArrayList<>();
 
     @OneToMany(mappedBy = "plant", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<AiArt> aiArts = new ArrayList<>();
+    List<AiArt> aiArts = new ArrayList<>();
 
-
-    public Plant(String name, String species, LocalDateTime plantedAt) {
+    public Plant(String name, String species, LocalDateTime plantedAt, PlantStage plantStage) {
         this.name = name;
         this.species = species;
         this.plantedAt = plantedAt;
+        this.plantStage = plantStage;
     }
 
-    public void update(String name, String species) {
+    public void update(String name, String species, PlantStage plantStage) {
         this.name = name;
         this.species = species;
+        this.plantStage = plantStage;
     }
 
 }
