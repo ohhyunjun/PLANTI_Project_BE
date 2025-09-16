@@ -28,7 +28,7 @@ public class PostService {
         Post savedPost = postRepository.save(post);
 
         if (file != null && !file.isEmpty()) {
-            fileService.uploadFile(savedPost.getId(), file);
+            fileService.uploadFile(savedPost, file);
         }
         PostResponseDto postResponseDto = new PostResponseDto(savedPost);
         return postResponseDto;
