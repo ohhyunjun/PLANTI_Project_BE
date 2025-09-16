@@ -1,5 +1,6 @@
 package com.metaverse.planti_be.post.service;
 
+import com.metaverse.planti_be.file.service.FileService;
 import com.metaverse.planti_be.post.domain.Post;
 import com.metaverse.planti_be.post.dto.PostRequestDto;
 import com.metaverse.planti_be.post.dto.PostResponseDto;
@@ -7,6 +8,7 @@ import com.metaverse.planti_be.post.repository.PostRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -15,14 +17,19 @@ import java.util.List;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final FileService fileService;
 
     @Transactional
-    public PostResponseDto createPost(PostRequestDto postRequestDto) {
+    public PostResponseDto createPost(PostRequestDto postRequestDto, MultipartFile file) {
         Post post = new Post(
                 postRequestDto.getTitle(),
                 postRequestDto.getContent()
         );
         Post savedPost = postRepository.save(post);
+
+        if (file != null && !file.isEmpty()) {
+            fileService.uploadFile(savedPost.getId(), file);
+        }
         PostResponseDto postResponseDto = new PostResponseDto(savedPost);
         return postResponseDto;
     }

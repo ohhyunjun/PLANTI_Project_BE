@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -20,8 +21,10 @@ public class PostController {
     // 글 만들기
     @PostMapping("/posts")
     public ResponseEntity<PostResponseDto> createPost(
-            @RequestBody PostRequestDto postRequestDto){
-        PostResponseDto postResponseDto = postService.createPost(postRequestDto);
+            @RequestPart("postData") PostRequestDto postRequestDto,
+            @RequestPart(value = "file", required = false) MultipartFile file) {
+
+        PostResponseDto postResponseDto = postService.createPost(postRequestDto, file);
         return ResponseEntity.status(HttpStatus.CREATED).body(postResponseDto);
     }
 
