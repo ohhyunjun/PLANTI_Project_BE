@@ -20,6 +20,7 @@ public class PlantResponseDto {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime plantedAt;
+
     private List<DiaryResponseDto> diaries;
     private List<AiArtResponseDto> aiArts;
 

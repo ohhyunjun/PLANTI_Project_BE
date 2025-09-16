@@ -2,11 +2,13 @@ package com.metaverse.planti_be.post.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.metaverse.planti_be.comment.dto.CommentResponseDto;
+import com.metaverse.planti_be.file.dto.FileResponseDto;
 import com.metaverse.planti_be.post.domain.Post;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,7 +23,9 @@ public class PostResponseDto {
     private LocalDateTime createdAt;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
+
     private List<CommentResponseDto> comments;
+    private List<FileResponseDto> files;
 
     public PostResponseDto(Post post) {
         this.id = post.getId();
@@ -29,11 +33,22 @@ public class PostResponseDto {
         this.content = post.getContent();
         this.createdAt = post.getCreatedAt();
         this.updatedAt = post.getUpdatedAt();
-        this.comments = post.getComments()
-                .stream()
-                .map(CommentResponseDto::new)
-                .collect(Collectors.toList()
-                );
+
+        if (post.getComments() != null) {
+            this.comments = post.getComments().stream()
+                    .map(CommentResponseDto::new)
+                    .collect(Collectors.toList());
+        } else {
+            this.comments = List.of();
+        }
+
+        if (post.getFiles() != null) {
+            this.files = post.getFiles().stream()
+                    .map(FileResponseDto::new)
+                    .collect(Collectors.toList());
+        } else {
+            this.files = List.of();
+        }
     }
 
 }
