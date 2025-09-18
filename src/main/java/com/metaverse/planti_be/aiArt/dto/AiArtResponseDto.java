@@ -1,7 +1,7 @@
-package com.metaverse.planti_be.AiArt.dto;
+package com.metaverse.planti_be.aiArt.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.metaverse.planti_be.AiArt.domain.AiArt;
+import com.metaverse.planti_be.aiArt.domain.AiArt;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

@@ -1,8 +1,8 @@
-package com.metaverse.planti_be.AiArt.controller;
+package com.metaverse.planti_be.aiArt.controller;
 
-import com.metaverse.planti_be.AiArt.dto.AiArtRequestDto;
-import com.metaverse.planti_be.AiArt.dto.AiArtResponseDto;
-import com.metaverse.planti_be.AiArt.service.AiArtService;
+import com.metaverse.planti_be.aiArt.dto.AiArtRequestDto;
+import com.metaverse.planti_be.aiArt.dto.AiArtResponseDto;
+import com.metaverse.planti_be.aiArt.service.AiArtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

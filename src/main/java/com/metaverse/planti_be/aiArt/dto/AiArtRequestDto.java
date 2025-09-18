@@ -1,4 +1,4 @@
-package com.metaverse.planti_be.AiArt.dto;
+package com.metaverse.planti_be.aiArt.dto;
 
 import lombok.Getter;
 

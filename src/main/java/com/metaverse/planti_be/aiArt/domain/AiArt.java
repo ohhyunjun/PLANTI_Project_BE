@@ -1,6 +1,5 @@
-package com.metaverse.planti_be.AiArt.domain;
+package com.metaverse.planti_be.aiArt.domain;
 
-import com.metaverse.planti_be.AiArt.dto.AiArtRequestDto;
 import com.metaverse.planti_be.common.TimeStamped;
 import com.metaverse.planti_be.plant.domain.Plant;
 import jakarta.persistence.*;

@@ -1,9 +1,9 @@
-package com.metaverse.planti_be.AiArt.service;
+package com.metaverse.planti_be.aiArt.service;
 
-import com.metaverse.planti_be.AiArt.domain.AiArt;
-import com.metaverse.planti_be.AiArt.dto.AiArtRequestDto;
-import com.metaverse.planti_be.AiArt.dto.AiArtResponseDto;
-import com.metaverse.planti_be.AiArt.repository.AiArtRepository;
+import com.metaverse.planti_be.aiArt.domain.AiArt;
+import com.metaverse.planti_be.aiArt.dto.AiArtRequestDto;
+import com.metaverse.planti_be.aiArt.dto.AiArtResponseDto;
+import com.metaverse.planti_be.aiArt.repository.AiArtRepository;
 import com.metaverse.planti_be.plant.domain.Plant;
 import com.metaverse.planti_be.plant.repository.PlantRepository;
 import jakarta.transaction.Transactional;

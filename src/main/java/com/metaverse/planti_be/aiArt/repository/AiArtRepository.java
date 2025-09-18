@@ -1,6 +1,6 @@
-package com.metaverse.planti_be.AiArt.repository;
+package com.metaverse.planti_be.aiArt.repository;
 
-import com.metaverse.planti_be.AiArt.domain.AiArt;
+import com.metaverse.planti_be.aiArt.domain.AiArt;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
