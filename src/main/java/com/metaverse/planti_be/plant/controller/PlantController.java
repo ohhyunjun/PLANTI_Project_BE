@@ -43,7 +43,8 @@ public class PlantController {
     // 특정 식물 수정하기
     @PutMapping("/plants/{plantId}")
     public ResponseEntity<PlantResponseDto> updatePlant(
-            @PathVariable Long plantId, PlantRequestDto plantRequestDto) {
+            @PathVariable Long plantId,
+            @RequestBody PlantRequestDto plantRequestDto) {
         PlantResponseDto updatePlant = plantService.updatePlant(plantId, plantRequestDto);
         return ResponseEntity.ok(updatePlant);
     }
