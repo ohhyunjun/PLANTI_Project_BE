@@ -15,16 +15,16 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class CommentService {
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
 
-    // 댓글 추가
+    @Transactional
     public CommentResponseDto createComment(Long postId, CommentRequestDto commentRequestDto) {
-        Post post = getValidPost(postId);
-
+        Post post = postRepository.findById(postId).orElseThrow(() ->
+                new IllegalArgumentException("해당 글을 찾을 수 없습니다. Post ID: " + postId)
+        );
         Comment comment = new Comment(
                 commentRequestDto.getContent(),
                 post
@@ -32,55 +32,55 @@ public class CommentService {
         Comment savedComment = commentRepository.save(comment);
         return new CommentResponseDto(savedComment);
     }
-    // 댓글 전체 조회
+
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<CommentResponseDto> getComments() {
         return commentRepository.findAllByOrderByCreatedAtAsc().stream()
                 .map(CommentResponseDto::new)
                 .collect(Collectors.toList());
     }
 
-    //특정 글의 댓글 조회
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<CommentResponseDto> getCommentsByPostId(Long postId) {
-        getValidPost(postId);
-
+        postRepository.findById(postId).orElseThrow(() ->
+                new IllegalArgumentException("해당 글을 찾을 수 없습니다. Post ID: " + postId)
+        );
         return commentRepository.findByPostIdOrderByCreatedAtAsc(postId).stream()
                 .map(CommentResponseDto::new)
                 .collect(Collectors.toList());
     }
 
-    // 댓글의 아이디 조회
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public CommentResponseDto getCommentById(Long postId, Long commentId) {
-        Comment comment = getValidComment(postId,commentId);
+        Comment comment = findCommentByPostIdAndCommentId(postId, commentId);
         return new CommentResponseDto(comment);
     }
 
-    // 댓글 수정
+    @Transactional
     public CommentResponseDto updateComment(Long postId, Long commentId, CommentRequestDto commentRequestDto) {
-        Comment comment = getValidComment(postId, commentId);
+        Comment comment = findCommentByPostIdAndCommentId(postId, commentId);
         comment.update(
                 commentRequestDto.getContent()
         );
         return new CommentResponseDto(comment);
     }
 
+    @Transactional
     public void deleteComment(Long postId, Long commentId) {
-        Comment comment = getValidComment(postId, commentId);
+        Comment comment = findCommentByPostIdAndCommentId(postId, commentId);
         commentRepository.delete(comment);
     }
 
-    private Post getValidPost(Long postId) {
-        return postRepository.findById(postId).orElseThrow(()->
-                new IllegalArgumentException("해당 게시글을 찾을 수 없습니다. Post ID:" + postId)
+    private Comment findCommentByPostIdAndCommentId(Long postId, Long commentId) {
+        postRepository.findById(postId).orElseThrow(() ->
+                new IllegalArgumentException("해당 글은 찾을 수 없습니다. Post ID: " + postId)
+        );
+
+        return commentRepository.findByIdAndPostId(commentId, postId).orElseThrow(() ->
+                new IllegalArgumentException("해당 글(ID: " + postId + ")에서 댓글(ID: " + commentId + ")을 찾을 수 없습니다.")
         );
     }
 
-    private Comment getValidComment(Long postId, Long commentId) {
-        Post post = getValidPost(postId);
-
-        return commentRepository.findByIdAndPostId(commentId, post.getId()).orElseThrow(() ->
-                new IllegalArgumentException("게시글(ID: " + postId + ")에서 댓글(ID: "+ commentId + ")을 찾을 수 없습니다.")
-        );
-    }
 
     // 게시글을 작성한 유저인지 확인 구현해야함
 

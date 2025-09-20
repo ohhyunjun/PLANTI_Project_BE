@@ -1,6 +1,5 @@
 package com.metaverse.planti_be.comment.controller;
 
-import com.metaverse.planti_be.comment.domain.Comment;
 import com.metaverse.planti_be.comment.dto.CommentRequestDto;
 import com.metaverse.planti_be.comment.dto.CommentResponseDto;
 import com.metaverse.planti_be.comment.service.CommentService;
@@ -20,7 +19,7 @@ public class CommentController {
 
     // 댓글 작성 API
     @PostMapping("/posts/{postId}/comments")
-    public ResponseEntity<CommentResponseDto> createComment(
+    public ResponseEntity<CommentResponseDto> createCommentForPost(
             @PathVariable Long postId,
             @RequestBody CommentRequestDto commentRequestDto) {
         CommentResponseDto commentResponseDto = commentService.createComment(postId,commentRequestDto);
@@ -34,7 +33,6 @@ public class CommentController {
         List<CommentResponseDto> commentResponseDtoList = commentService.getCommentsByPostId(postId);
         return ResponseEntity.ok(commentResponseDtoList);
     }
-
 
     // 특정 게시글의 댓글의 아이디 조회
     @GetMapping("/posts/{postId}/comments/{commentId}")

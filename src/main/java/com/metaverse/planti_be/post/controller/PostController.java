@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -17,30 +18,45 @@ public class PostController {
 
     private final PostService postService;
 
-    // 게시글 작성 API
+    // 글 만들기
     @PostMapping("/posts")
-    public ResponseEntity<PostResponseDto> createPost(@RequestBody PostRequestDto postRequestDto){
-        PostResponseDto postResponseDto = postService.createPost(postRequestDto);
+    public ResponseEntity<PostResponseDto> createPost(
+            @RequestPart("postData") PostRequestDto postRequestDto,
+            @RequestPart(value = "file", required = false) MultipartFile file) {
+
+        PostResponseDto postResponseDto = postService.createPost(postRequestDto, file);
         return ResponseEntity.status(HttpStatus.CREATED).body(postResponseDto);
     }
 
-    // 게시글 목록 조회 API
+    // 전체 글 불러오기
     @GetMapping("/posts")
     public ResponseEntity<List<PostResponseDto>> getPosts(){
         List<PostResponseDto> postResponseDtoList = postService.getPosts();
         return ResponseEntity.ok(postResponseDtoList);
     }
 
-
-    // 게시글 수정 API
-    @PutMapping("/posts/{id}")
-    public Long updatePost(@PathVariable Long id, @RequestBody PostRequestDto postRequestDto){
-        return postService.updatePost(id, postRequestDto);
+    // 특정 글 불러오기
+    @GetMapping("/posts/{postId}")
+    public ResponseEntity<PostResponseDto> getPostById(
+            @PathVariable Long postId){
+        PostResponseDto postResponseDto = postService.getPostById(postId);
+        return ResponseEntity.ok(postResponseDto);
     }
 
-    // 게시글 삭제 API
-    @DeleteMapping("/posts/{id}")
-    public Long deletePost(@PathVariable Long id){
-        return postService.deletePost(id);
+    // 특정 글 수정하기
+    @PutMapping("/posts/{postId}")
+    public ResponseEntity<PostResponseDto> updatePost(
+            @PathVariable Long postId,
+            @RequestBody PostRequestDto postRequestDto){
+        PostResponseDto updatedPost = postService.updatePost(postId, postRequestDto);
+        return ResponseEntity.ok(updatedPost);
+    }
+
+    // 특정 글 지우기
+    @DeleteMapping("/posts/{postId}")
+    public ResponseEntity<Void> deletePost(
+            @PathVariable Long postId){
+        postService.deletePost(postId);
+        return ResponseEntity.noContent().build();
     }
 }

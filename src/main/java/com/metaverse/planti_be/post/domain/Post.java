@@ -2,7 +2,7 @@ package com.metaverse.planti_be.post.domain;
 
 import com.metaverse.planti_be.comment.domain.Comment;
 import com.metaverse.planti_be.common.TimeStamped;
-import com.metaverse.planti_be.post.dto.PostRequestDto;
+import com.metaverse.planti_be.file.domain.File;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,15 +27,18 @@ public class Post extends TimeStamped {
     private String content;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<Comment> comments = new ArrayList<>();
+    private List<Comment> comments = new ArrayList<>();
 
-    public Post(PostRequestDto postRequestDto) {
-        this.title = postRequestDto.getTitle();
-        this.content = postRequestDto.getContent();
+    @OneToMany(mappedBy = "post",  cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<File> files = new ArrayList<>();
+
+    public Post(String title, String content) {
+        this.title = title;
+        this.content = content;
     }
 
-    public void update(PostRequestDto postRequestDto) {
-        this.title = postRequestDto.getTitle();
-        this.content = postRequestDto.getContent();
+    public void update(String title, String content) {
+        this.title = title;
+        this.content = content;
     }
 }
