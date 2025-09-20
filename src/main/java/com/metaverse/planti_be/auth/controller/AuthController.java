@@ -5,6 +5,7 @@ package com.metaverse.planti_be.auth.controller;
 import com.metaverse.planti_be.auth.dto.AuthResponseDto;
 import com.metaverse.planti_be.auth.dto.LoginRequestDto;
 import com.metaverse.planti_be.auth.dto.SignUpRequestDto;
+import com.metaverse.planti_be.auth.dto.UsernameCheckRequestDto;
 import com.metaverse.planti_be.auth.service.UserService;
 import com.metaverse.planti_be.auth.util.JwtUtil;
 import jakarta.validation.Valid;
@@ -16,10 +17,9 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -60,5 +60,11 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new AuthResponseDto(null, null));
         }
+    }
+    //유저이름이 있는지 중복 체크에 관한 코드
+    @PostMapping("/auth/check-username")
+    public ResponseEntity<Map<String, Boolean>> checkUsernameAvailability(@RequestBody UsernameCheckRequestDto requestDto) {
+        boolean isTaken = userService.isUsernameTaken(requestDto.getUsername());
+        return ResponseEntity.ok(Map.of("isTaken", isTaken));
     }
 }

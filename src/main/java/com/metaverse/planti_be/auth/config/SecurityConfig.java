@@ -4,6 +4,7 @@ import com.metaverse.planti_be.auth.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -48,7 +49,13 @@ public class SecurityConfig {
 
                 // 인가(Authorization, 엔드포인트의 접근 권한) 규칙 정의:
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/auth/**").permitAll()
+                        // 1. 아두이노가 사용하는 GET 요청은 인증 없이 허용
+                        .requestMatchers(HttpMethod.GET, "/api/leds/*/status").permitAll()
+                        // 2. 기존의 permitAll() 규칙들
+                        .requestMatchers("/api/auth/**", "/api/sensor_log/**", "/api/photos/**").permitAll()
+
+                        // 3. 사용자가 사용하는 PUT 요청 등을 포함한 나머지 요청들은 인증 요구
+                        .requestMatchers("/api/posts/**", "/api/devices/**", "/api/leds/**").authenticated()
                         .anyRequest().authenticated()
                 )
 
