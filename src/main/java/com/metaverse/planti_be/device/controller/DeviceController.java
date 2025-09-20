@@ -23,30 +23,30 @@ public class DeviceController {
 
     @PostMapping("/register")
     public ResponseEntity<String> registerDevice(
-            @RequestBody DeviceRegistrationRequestDto requestDto,
+            @RequestBody DeviceCreateRequestDto requestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
         try {
-            // @AuthenticationPrincipal 어노테이션으로 현재 로그인된 유저 정보를 가져옵니다.
             User currentUser = principalDetails.getUser();
 
-            // 서비스 로직 호출
-            deviceService.registerDevice(requestDto.getSerialNumber(), currentUser);
+            // 서비스 로직 호출 (닉네임 추가)
+            deviceService.registerDevice(requestDto.getSerialNumber(), requestDto.getDeviceNickname(), currentUser);
 
             return ResponseEntity.ok("기기가 성공적으로 등록되었습니다.");
 
-        } catch (IllegalArgumentException e) { // DeviceService에서 기기를 못 찾은 경우
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (IllegalStateException e) { // DeviceService에서 이미 등록된 기기인 경우
+        } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
     // 관리자용 기기 생성 API
-    @PostMapping("/admin/create")
-    @PreAuthorize("hasRole('ADMIN')") // ADMIN 역할을 가진 사용자만 이 API를 호출할 수 있습니다.
-    public ResponseEntity<String> createDevice(@RequestBody DeviceCreateRequestDto requestDto) {
+    @PostMapping("/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> createDevice(@RequestBody DeviceRegistrationRequestDto requestDto) {
         try {
-            deviceService.createDeviceByAdmin(requestDto);
+            // 서비스 로직 호출 (시리얼 번호만 전달)
+            deviceService.createDeviceByAdmin(requestDto.getSerialNumber());
             return ResponseEntity.status(HttpStatus.CREATED).body("기기가 성공적으로 생성되었습니다.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

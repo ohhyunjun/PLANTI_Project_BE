@@ -17,7 +17,7 @@ public class PlantController {
     }
 
     @PostMapping("/plants")
-    public PlantResponseDto createPlant(PlantRequestDto plantRequestDto) {
+    public PlantResponseDto createPlant(@RequestBody PlantRequestDto plantRequestDto) { // ◀ @RequestBody 추가
         return plantService.createPlant(plantRequestDto);
     }
 
@@ -27,7 +27,7 @@ public class PlantController {
     }
 
     @PutMapping("/plants/{plantId}")
-    public Long updatePlant(@PathVariable Long plantId, PlantRequestDto plantRequestDto) {
+    public Long updatePlant(@PathVariable Long plantId, @RequestBody PlantRequestDto plantRequestDto) { // ◀ @RequestBody 추가
         return plantService.updatePlant(plantId, plantRequestDto);
     }
 
