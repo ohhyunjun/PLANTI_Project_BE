@@ -52,7 +52,7 @@ public class SecurityConfig {
                         // 1. 아두이노가 사용하는 GET 요청은 인증 없이 허용
                         .requestMatchers(HttpMethod.GET, "/api/leds/*/status").permitAll()
                         // 2. 기존의 permitAll() 규칙들
-                        .requestMatchers("/api/auth/**", "/api/sensor_log/**", "/api/auth/check-username").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/sensor_log/**", "/api/photos/**").permitAll()
 
                         // 3. 사용자가 사용하는 PUT 요청 등을 포함한 나머지 요청들은 인증 요구
                         .requestMatchers("/api/posts/**", "/api/devices/**", "/api/leds/**").authenticated()
