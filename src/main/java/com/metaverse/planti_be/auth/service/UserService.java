@@ -34,4 +34,9 @@ public class UserService {
 
         userRepository.save(user);
     }
+
+    @Transactional(readOnly = true) // 데이터 변경이 없는 읽기 전용 트랜잭션
+    public boolean isUsernameTaken(String username) {
+        return userRepository.existsByUsername(username);
+    }
 }
