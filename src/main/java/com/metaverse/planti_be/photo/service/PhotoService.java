@@ -87,43 +87,29 @@ public class PhotoService {
                     aiDetailedServerUrl, entity, Map.class);
 
             if (detailedResponse != null) {
-                // 가장 신뢰도 높은 객체 찾기
-                String bestResult = "no_detection";
-                Double bestConfidence = 0.0;
+                // 응답에서 필요한 정보 추출
+                String bestResult = (String) detailedResponse.getOrDefault("bestResult", "no_detection");
+                Integer totalDetected = Integer.valueOf(detailedResponse.getOrDefault("totalDetected", 0).toString());
 
-                @SuppressWarnings("unchecked")
-                List<Map<String, Object>> detections = (List<Map<String, Object>>) detailedResponse.get("detections");
+                // 평균 신뢰도 사용
+                Double avgConfidence = Double.valueOf(detailedResponse.getOrDefault("avgConfidence", 0.0).toString());
 
-                if (detections != null && !detections.isEmpty()) {
-                    for (Map<String, Object> detection : detections) {
-                        Object confidenceObj = detection.get("confidence");
-                        if (confidenceObj != null) {
-                            Double confidence = Double.valueOf(confidenceObj.toString());
-                            if (confidence > bestConfidence) {
-                                bestConfidence = confidence;
-                                bestResult = (String) detection.get("className");
-                            }
-                        }
-                    }
-                }
-
-                // 상세 결과를 JSON으로 변환하여 저장
+                // 상세 결과를 JSON으로 변환하여 저장 (x,y 좌표 제외된 상태)
                 String detailedResultsJson = convertToJson(detailedResponse);
 
-                // 총 검출 개수 추출
-                Integer totalDetected = 0;
-                Object totalObj = detailedResponse.get("totalDetected");
-                if (totalObj != null) {
-                    totalDetected = Integer.valueOf(totalObj.toString());
-                }
-
-                // DB 업데이트
+                // DB 업데이트 - 평균 신뢰도 저장
                 savedPhoto.updateDetailedAnalysis(
                         bestResult,
-                        bestConfidence,
+                        avgConfidence,
                         totalDetected,
                         detailedResultsJson
                 );
+
+                System.out.println("🎯 AI 분석 결과:");
+                System.out.println("   - 최고 검출: " + bestResult);
+                System.out.println("   - 평균 신뢰도: " + avgConfidence);
+                System.out.println("   - 총 검출 수: " + totalDetected);
+
             }
 
         } catch (Exception e) {
@@ -174,42 +160,24 @@ public class PhotoService {
 
             // PhotoResponseDto로 변환하여 반환 (DB 저장 없이)
             if (detailedResponse != null) {
-                // 가장 신뢰도 높은 객체 찾기
-                String bestResult = "no_detection";
-                Double bestConfidence = 0.0;
-
-                @SuppressWarnings("unchecked")
-                List<Map<String, Object>> detections = (List<Map<String, Object>>) detailedResponse.get("detections");
-
-                if (detections != null && !detections.isEmpty()) {
-                    for (Map<String, Object> detection : detections) {
-                        Object confidenceObj = detection.get("confidence");
-                        if (confidenceObj != null) {
-                            Double confidence = Double.valueOf(confidenceObj.toString());
-                            if (confidence > bestConfidence) {
-                                bestConfidence = confidence;
-                                bestResult = (String) detection.get("className");
-                            }
-                        }
-                    }
-                }
-
-                // 총 검출 개수 추출
-                Integer totalDetected = 0;
-                Object totalObj = detailedResponse.get("totalDetected");
-                if (totalObj != null) {
-                    totalDetected = Integer.valueOf(totalObj.toString());
-                }
+                String bestResult = (String) detailedResponse.getOrDefault("bestResult", "no_detection");
+                Double avgConfidence = Double.valueOf(detailedResponse.getOrDefault("avgConfidence", 0.0).toString());
+                Integer totalDetected = Integer.valueOf(detailedResponse.getOrDefault("totalDetected", 0).toString());
 
                 // 더미 디바이스 생성 (DB 저장 안함)
                 Device dummyDevice = new Device();
                 Photo tempPhoto = new Photo(dummyDevice, "", "temp_analysis");
                 tempPhoto.updateDetailedAnalysis(
                         bestResult,
-                        bestConfidence,
+                        avgConfidence,
                         totalDetected,
                         convertToJson(detailedResponse)
                 );
+
+                System.out.println("🔍 임시 분석 결과:");
+                System.out.println("   - 최고 검출: " + bestResult);
+                System.out.println("   - 평균 신뢰도: " + avgConfidence);
+                System.out.println("   - 총 검출 수: " + totalDetected);
 
                 return new PhotoResponseDto(tempPhoto);
             }
@@ -230,7 +198,7 @@ public class PhotoService {
                 .orElseThrow(() -> new IllegalArgumentException("저장된 사진이 없습니다."));
     }
 
-    // JSON 변환 헬퍼 메소드
+    // JSON 변환 헬퍼 메소드 - x,y 좌표는 이미 제외됨
     private String convertToJson(Map<String, Object> response) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
