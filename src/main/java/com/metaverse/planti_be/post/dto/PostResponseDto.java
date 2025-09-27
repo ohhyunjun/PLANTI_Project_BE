@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +17,8 @@ public class PostResponseDto {
     private Long id;
     private String title;
     private String content;
+    private String authorUsername;
+    private String authorEmail;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
@@ -33,6 +34,14 @@ public class PostResponseDto {
         this.content = post.getContent();
         this.createdAt = post.getCreatedAt();
         this.updatedAt = post.getUpdatedAt();
+
+        if (post.getUser() != null) {
+            this.authorUsername = post.getUser().getUsername();
+            this.authorEmail = post.getUser().getEmail();
+        } else {
+            this.authorUsername = null;
+            this.authorEmail = null;
+        }
 
         if (post.getComments() != null) {
             this.comments = post.getComments().stream()

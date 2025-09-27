@@ -42,7 +42,8 @@ public class User extends TimeStamped implements UserDetails{
     private List<Device> devices = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Post> posts = new ArrayList<>();
+
+    List<Post> posts = new ArrayList<>();
 
     public User(String username, String password, String email, UserRole userRole) {
         this.username = username;
