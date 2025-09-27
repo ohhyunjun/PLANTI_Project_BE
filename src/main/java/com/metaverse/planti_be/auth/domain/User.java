@@ -2,6 +2,7 @@ package com.metaverse.planti_be.auth.domain;
 
 import com.metaverse.planti_be.common.TimeStamped;
 import com.metaverse.planti_be.device.domain.Device;
+import com.metaverse.planti_be.post.domain.Post;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,6 +40,9 @@ public class User extends TimeStamped implements UserDetails{
 
     @OneToMany
     private List<Device> devices = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<Post> posts = new ArrayList<>();
 
     public User(String username, String password, String email, UserRole userRole) {
         this.username = username;

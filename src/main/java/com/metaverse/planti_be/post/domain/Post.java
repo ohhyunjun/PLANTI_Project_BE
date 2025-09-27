@@ -1,5 +1,6 @@
 package com.metaverse.planti_be.post.domain;
 
+import com.metaverse.planti_be.auth.domain.User;
 import com.metaverse.planti_be.comment.domain.Comment;
 import com.metaverse.planti_be.common.TimeStamped;
 import com.metaverse.planti_be.file.domain.File;
@@ -32,9 +33,15 @@ public class Post extends TimeStamped {
     @OneToMany(mappedBy = "post",  cascade = CascadeType.ALL, orphanRemoval = true)
     private List<File> files = new ArrayList<>();
 
-    public Post(String title, String content) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+
+    public Post(String title, String content, User user) {
         this.title = title;
         this.content = content;
+        this.user = user;
     }
 
     public void update(String title, String content) {

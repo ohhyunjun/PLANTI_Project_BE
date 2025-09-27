@@ -1,11 +1,13 @@
 package com.metaverse.planti_be.post.controller;
 
+import com.metaverse.planti_be.auth.domain.PrincipalDetails;
 import com.metaverse.planti_be.post.dto.PostRequestDto;
 import com.metaverse.planti_be.post.dto.PostResponseDto;
 import com.metaverse.planti_be.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,9 +24,9 @@ public class PostController {
     @PostMapping("/posts")
     public ResponseEntity<PostResponseDto> createPost(
             @RequestPart("postData") PostRequestDto postRequestDto,
-            @RequestPart(value = "file", required = false) MultipartFile file) {
-
-        PostResponseDto postResponseDto = postService.createPost(postRequestDto, file);
+            @RequestPart(value = "file", required = false) MultipartFile file,
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        PostResponseDto postResponseDto = postService.createPost(principalDetails, postRequestDto, file);
         return ResponseEntity.status(HttpStatus.CREATED).body(postResponseDto);
     }
 
@@ -47,16 +49,18 @@ public class PostController {
     @PutMapping("/posts/{postId}")
     public ResponseEntity<PostResponseDto> updatePost(
             @PathVariable Long postId,
-            @RequestBody PostRequestDto postRequestDto){
-        PostResponseDto updatedPost = postService.updatePost(postId, postRequestDto);
+            @RequestBody PostRequestDto postRequestDto,
+            @AuthenticationPrincipal PrincipalDetails principalDetails){
+        PostResponseDto updatedPost = postService.updatePost(principalDetails, postId, postRequestDto);
         return ResponseEntity.ok(updatedPost);
     }
 
     // 특정 글 지우기
     @DeleteMapping("/posts/{postId}")
     public ResponseEntity<Void> deletePost(
-            @PathVariable Long postId){
-        postService.deletePost(postId);
+            @PathVariable Long postId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails){
+        postService.deletePost(principalDetails, postId);
         return ResponseEntity.noContent().build();
     }
 }
