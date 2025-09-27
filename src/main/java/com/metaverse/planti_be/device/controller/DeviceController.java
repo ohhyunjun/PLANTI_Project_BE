@@ -41,7 +41,7 @@ public class DeviceController {
         }
     }
     // 관리자용 기기 생성 API
-    @PostMapping("/admin")
+    @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> createDevice(@RequestBody DeviceRegistrationRequestDto requestDto) {
         try {

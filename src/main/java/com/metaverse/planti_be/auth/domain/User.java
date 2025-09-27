@@ -38,10 +38,11 @@ public class User extends TimeStamped implements UserDetails{
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
 
-    @OneToMany
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Device> devices = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+
     List<Post> posts = new ArrayList<>();
 
     public User(String username, String password, String email, UserRole userRole) {
@@ -89,5 +90,15 @@ public class User extends TimeStamped implements UserDetails{
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public void addDevice(Device device) {
+        this.devices.add(device);
+        device.setUser(this);
+    }
+
+    public void removeDevice(Device device) {
+        this.devices.remove(device);
+        device.setUser(null);
     }
 }
