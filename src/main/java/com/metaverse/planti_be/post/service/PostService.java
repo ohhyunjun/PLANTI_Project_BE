@@ -1,5 +1,7 @@
 package com.metaverse.planti_be.post.service;
 
+import com.metaverse.planti_be.auth.domain.PrincipalDetails;
+import com.metaverse.planti_be.auth.domain.User;
 import com.metaverse.planti_be.file.service.FileService;
 import com.metaverse.planti_be.post.domain.Post;
 import com.metaverse.planti_be.post.dto.PostRequestDto;
@@ -20,10 +22,12 @@ public class PostService {
     private final FileService fileService;
 
     @Transactional
-    public PostResponseDto createPost(PostRequestDto postRequestDto, MultipartFile file) {
+    public PostResponseDto createPost(PrincipalDetails principalDetails, PostRequestDto postRequestDto, MultipartFile file) {
+        User logginedUser = principalDetails.getUser();
         Post post = new Post(
                 postRequestDto.getTitle(),
-                postRequestDto.getContent()
+                postRequestDto.getContent(),
+                logginedUser
         );
         Post savedPost = postRepository.save(post);
 
@@ -51,8 +55,10 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponseDto updatePost(Long postId, PostRequestDto postRequestDto){
+    public PostResponseDto updatePost(PrincipalDetails principalDetails, Long postId, PostRequestDto postRequestDto){
         Post post = findPost(postId);
+        checkPostOwnership(post, principalDetails);
+
         post.update(
                 postRequestDto.getTitle(),
                 postRequestDto.getContent()
@@ -61,8 +67,10 @@ public class PostService {
     }
 
     @Transactional
-    public void deletePost(Long postId){
+    public void deletePost(PrincipalDetails principalDetails, Long postId){
         Post post = findPost(postId);
+        checkPostOwnership(post, principalDetails);
+
         postRepository.delete(post);
     }
 
@@ -70,5 +78,11 @@ public class PostService {
         return postRepository.findById(postId).orElseThrow(() ->
                 new IllegalArgumentException("해당 게시글은 존재하지 않습니다.")
         );
+    }
+
+    private void checkPostOwnership(Post post, PrincipalDetails principalDetails) {
+        if (!post.getUser().getId().equals(principalDetails.getUser().getId())) {
+            throw new IllegalArgumentException("게시글은 작성자만 수정하거나 삭제할 수 있습니다.");
+        }
     }
 }
