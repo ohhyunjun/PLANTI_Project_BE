@@ -1,5 +1,6 @@
 package com.metaverse.planti_be.comment.domain;
 
+import com.metaverse.planti_be.auth.domain.User;
 import com.metaverse.planti_be.common.TimeStamped;
 import com.metaverse.planti_be.post.domain.Post;
 import jakarta.persistence.*;
@@ -25,9 +26,15 @@ public class Comment extends TimeStamped {
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
-    public Comment(String content, Post post) {
+    // User와의 N:1 연관관계
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    public Comment(String content, Post post, User user) {
         this.content = content;
         this.post = post;
+        this.user = user;
     }
 
     public void update(String content) {

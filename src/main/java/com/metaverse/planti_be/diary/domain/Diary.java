@@ -1,5 +1,6 @@
 package com.metaverse.planti_be.diary.domain;
 
+import com.metaverse.planti_be.auth.domain.User;
 import com.metaverse.planti_be.common.TimeStamped;
 import com.metaverse.planti_be.plant.domain.Plant;
 import jakarta.persistence.*;
@@ -29,10 +30,16 @@ public class Diary extends TimeStamped {
     @JoinColumn(name = "plant_id", nullable = false)
     private Plant plant;
 
-    public Diary(String title, String content, Plant plant) {
+    // User와의 N:1 연관관계
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    public Diary(String title, String content, Plant plant, User user) {
         this.title = title;
         this.content = content;
         this.plant = plant;
+        this.user = user;
     }
 
     public void update(String title, String content) {

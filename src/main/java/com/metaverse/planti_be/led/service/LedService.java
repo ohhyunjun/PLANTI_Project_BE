@@ -71,9 +71,18 @@ public class LedService {
     // --- 사용자가 호출하는 메소드 ---
     // 이름 변경: getLedStatus -> getLedSettings
     @Transactional(readOnly = true)
-    public LedStatusResponseDto getLedSettings(String serialNumber) {
+    public LedStatusResponseDto getLedSettings(String serialNumber, User user) {
+        // 1. 기기 존재 및 소유권 확인
+        Device device = deviceRepository.findById(serialNumber)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 기기입니다."));
+
+        if (!device.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("해당 기기에 대한 권한이 없습니다.");
+        }
+
+        // 2. LED 정보 조회
         Led led = ledRepository.findById(serialNumber)
-                .orElseThrow(() -> new IllegalArgumentException("해당 기기의 LED 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalStateException("해당 기기의 LED 정보를 찾을 수 없습니다."));
 
         return new LedStatusResponseDto(led);
     }

@@ -1,7 +1,7 @@
 package com.metaverse.planti_be.aiArt.domain;
 
+import com.metaverse.planti_be.auth.domain.User;
 import com.metaverse.planti_be.common.TimeStamped;
-import com.metaverse.planti_be.plant.domain.Plant;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,15 +27,16 @@ public class AiArt extends TimeStamped {
     @Column(nullable = false)
     private String style;
 
+    // User와 다대일 관계 설정
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "plant_id", nullable = false)
-    private Plant plant;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    public AiArt(String originalImageUrl, String artImageUrl, String style, Plant plant) {
+
+    public AiArt(String originalImageUrl, String artImageUrl, String style) {
         this.originalImageUrl = originalImageUrl;
         this.artImageUrl = artImageUrl;
         this.style = style;
-        this.plant = plant;
     }
     public void update(String originalImageUrl, String style) {
         this.originalImageUrl = originalImageUrl;

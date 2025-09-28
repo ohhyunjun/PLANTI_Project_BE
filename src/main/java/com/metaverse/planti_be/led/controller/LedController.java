@@ -43,10 +43,11 @@ public class LedController {
     // --- 사용자가 현재 LED 설정 값을 조회하는 API (인증 필요) ---
     // GET /api/leds/{serialNumber}
     @GetMapping("/{serialNumber}")
-    public ResponseEntity<LedStatusResponseDto> getLedSettings(@PathVariable String serialNumber, @AuthenticationPrincipal PrincipalDetails principalDetails) {
-        // 본인 기기인지 확인하는 로직이 서비스 단에 필요할 수 있으나, 여기서는 일단 조회만 구현합니다.
-        // LedService에 getLedSettings에 대한 권한 검사 로직을 추가하는 것을 권장합니다.
-        LedStatusResponseDto responseDto = ledService.getLedSettings(serialNumber);
+    public ResponseEntity<LedStatusResponseDto> getLedSettings(
+            @PathVariable String serialNumber,
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        User user = principalDetails.getUser();
+        LedStatusResponseDto responseDto = ledService.getLedSettings(serialNumber, user);
         return ResponseEntity.ok(responseDto);
     }
 }
