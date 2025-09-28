@@ -5,6 +5,7 @@ import com.metaverse.planti_be.auth.domain.User;
 import com.metaverse.planti_be.device.dto.DeviceCreateRequestDto;
 import com.metaverse.planti_be.device.dto.DeviceRegistrationRequestDto;
 import com.metaverse.planti_be.device.service.DeviceService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public class DeviceController {
 
     @PostMapping("/register")
     public ResponseEntity<String> registerDevice(
-            @RequestBody DeviceCreateRequestDto requestDto,
+            @Valid @RequestBody DeviceCreateRequestDto requestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
         try {
