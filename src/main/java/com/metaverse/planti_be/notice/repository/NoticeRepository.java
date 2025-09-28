@@ -4,8 +4,7 @@ import com.metaverse.planti_be.device.domain.Device;
 import com.metaverse.planti_be.notice.domain.Notice;
 import com.metaverse.planti_be.notice.domain.NoticeType;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import com.metaverse.planti_be.auth.domain.User;
 
 import java.util.List;
 
