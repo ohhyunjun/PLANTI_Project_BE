@@ -13,15 +13,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/aiArts") // 기본 경로 변경
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class AiArtController {
 
     private final AiArtService aiArtService;
 
-    // 현재 로그인된 유저의 AI 아트 만들기
-    @PostMapping
-    public ResponseEntity<AiArtResponseDto> createAiArt(
+    // 해당 식물의 아트 만들기
+    @PostMapping("/aiArts")
+    public ResponseEntity<AiArtResponseDto> createAiArtForPlant(
             @RequestBody AiArtRequestDto aiArtRequestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
         Long userId = principalDetails.getUser().getId();
@@ -29,9 +29,9 @@ public class AiArtController {
         return ResponseEntity.status(HttpStatus.CREATED).body(aiArtResponseDto);
     }
 
-    // 현재 로그인된 유저의 AI 아트 전체 조회
-    @GetMapping("/my")
-    public ResponseEntity<List<AiArtResponseDto>> getMyAiArts(
+    // 유저의 아트 전체 조회
+    @GetMapping("/aiArts/my")
+    public ResponseEntity<List<AiArtResponseDto>> getAiArtsByPlantId(
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
         Long userId = principalDetails.getUser().getId();
         List<AiArtResponseDto> aiArtResponseDtoList = aiArtService.getAiArtsByUser(userId);
@@ -45,8 +45,8 @@ public class AiArtController {
         return ResponseEntity.ok(aiArtResponseDtoList);
     }
 
-    // 특정 아트 조회 (자신의 것만)
-    @GetMapping("/{aiArtId}")
+    // 해당 식물의 특정 아트 조회
+    @GetMapping("/aiArts/{aiArtId}")
     public ResponseEntity<AiArtResponseDto> getAiArtById(
             @PathVariable Long aiArtId,
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
@@ -55,8 +55,8 @@ public class AiArtController {
         return ResponseEntity.ok(aiArtResponseDto);
     }
 
-    // 특정 아트 수정 (자신의 것만)
-    @PutMapping("/{aiArtId}")
+    // 해당 식물의 특정 아트 수정
+    @PutMapping("/aiArts/{aiArtId}")
     public ResponseEntity<AiArtResponseDto> updateAiArt(
             @PathVariable Long aiArtId,
             @RequestBody AiArtRequestDto aiArtRequestDto,
@@ -66,8 +66,8 @@ public class AiArtController {
         return ResponseEntity.ok(updatedAiArt);
     }
 
-    // 특정 아트 삭제 (자신의 것만)
-    @DeleteMapping("/{aiArtId}")
+    // 해당 식물의 특정 아트 삭제
+    @DeleteMapping("/aiArts/{aiArtId}")
     public ResponseEntity<Void> deleteAiArt(
             @PathVariable Long aiArtId,
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
