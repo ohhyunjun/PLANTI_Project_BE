@@ -49,13 +49,22 @@ public class SecurityConfig {
 
                 // 인가(Authorization, 엔드포인트의 접근 권한) 규칙 정의:
                 .authorizeHttpRequests(authorize -> authorize
-                        // 1. 아두이노가 사용하는 GET 요청은 인증 없이 허용
-                        .requestMatchers(HttpMethod.GET, "/api/leds/*/status").permitAll()
-                        // 2. 기존의 permitAll() 규칙들
-                        .requestMatchers("/api/auth/**", "/api/sensor_log/**", "/api/photos/**").permitAll()
+                        // 1. GET 요청 중 인증 없이 허용하는 엔드포인트들
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/leds/*/status",           // 아두이노용 LED 상태 조회
+                                "/api/aiArts",                  // AI Art 조회
+                                "/api/posts",
+                                "/api/posts/**",                // 특정 게시글 및 댓글 조회 허용
+                                "/api/comments"                 // 전체 댓글 조회 허용
+                        ).permitAll()
 
-                        // 3. 사용자가 사용하는 PUT 요청 등을 포함한 나머지 요청들은 인증 요구
-                        .requestMatchers("/api/posts/**", "/api/devices/**", "/api/leds/**").authenticated()
+                        // 2. 인증없는 엔드포인트들
+                        .requestMatchers(
+                                "/api/auth/**",         // 회원가입
+                                "/api/sensor_log/**",   // 센서 데이터 수집
+                                "/api/photos/**"
+                        ).permitAll()
+                        // 3. 위에서 허용한 경로 외의 모든 요청은 반드시 인증이 필요함
                         .anyRequest().authenticated()
                 )
 
