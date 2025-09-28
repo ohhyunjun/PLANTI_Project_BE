@@ -1,7 +1,7 @@
 package com.metaverse.planti_be.plant.domain;
 
-import com.metaverse.planti_be.aiArt.domain.AiArt;
 import com.metaverse.planti_be.common.TimeStamped;
+import com.metaverse.planti_be.device.domain.Device;
 import com.metaverse.planti_be.diary.domain.Diary;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -29,24 +29,28 @@ public class Plant extends TimeStamped {
     @Column(nullable = false)
     private String species;
 
-    @Column(updatable = false) // 처음 심은 날짜 수정하고싶으면 true
+    @Column(updatable = false)
     private LocalDateTime plantedAt;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PlantStage plantStage;
 
+    // Device와의 1:1 연관관계만 유지
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "device_serial", unique = true, nullable = false)
+    private Device device;
+
+    // Diary와의 1:M 관계만 유지 (AiArt 관계 제거)
     @OneToMany(mappedBy = "plant", cascade = CascadeType.ALL, orphanRemoval = true)
     List<Diary> diaries = new ArrayList<>();
 
-    @OneToMany(mappedBy = "plant", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<AiArt> aiArts = new ArrayList<>();
-
-    public Plant(String name, String species, LocalDateTime plantedAt, PlantStage plantStage) {
+    public Plant(String name, String species, LocalDateTime plantedAt, PlantStage plantStage, Device device) {
         this.name = name;
         this.species = species;
         this.plantedAt = plantedAt;
         this.plantStage = plantStage;
+        this.device = device;
     }
 
     public void update(String name, String species, PlantStage plantStage) {
@@ -54,5 +58,4 @@ public class Plant extends TimeStamped {
         this.species = species;
         this.plantStage = plantStage;
     }
-
 }

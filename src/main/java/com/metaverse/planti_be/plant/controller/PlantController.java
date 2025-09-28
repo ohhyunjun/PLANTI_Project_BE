@@ -1,11 +1,13 @@
 package com.metaverse.planti_be.plant.controller;
 
+import com.metaverse.planti_be.auth.domain.PrincipalDetails;
 import com.metaverse.planti_be.plant.dto.PlantRequestDto;
 import com.metaverse.planti_be.plant.dto.PlantResponseDto;
 import com.metaverse.planti_be.plant.service.PlantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,23 +22,26 @@ public class PlantController {
     // 식물 등록하기
     @PostMapping("/plants")
     public ResponseEntity<PlantResponseDto> createPlant(
-            @RequestBody PlantRequestDto plantRequestDto) {
-        PlantResponseDto plantResponseDto = plantService.createPlant(plantRequestDto);
+            @RequestBody PlantRequestDto plantRequestDto,
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        PlantResponseDto plantResponseDto = plantService.createPlant(plantRequestDto, principalDetails.getUser());
         return ResponseEntity.status(HttpStatus.CREATED).body(plantResponseDto);
     }
 
     // 전체 식물 불러오기
     @GetMapping("/plants")
-    public ResponseEntity<List<PlantResponseDto>> getPlants() {
-        List<PlantResponseDto> plantResponseDtoList = plantService.getPlants();
+    public ResponseEntity<List<PlantResponseDto>> getPlants(
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        List<PlantResponseDto> plantResponseDtoList = plantService.getPlants(principalDetails.getUser());
         return ResponseEntity.ok(plantResponseDtoList);
     }
 
     // 특정 식물 불러오기
     @GetMapping("/plants/{plantId}")
     public ResponseEntity<PlantResponseDto> getPlantById(
-            @PathVariable Long plantId) {
-        PlantResponseDto plantResponseDto = plantService.getPlantById(plantId);
+            @PathVariable Long plantId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        PlantResponseDto plantResponseDto = plantService.getPlantById(plantId, principalDetails.getUser());
         return ResponseEntity.ok(plantResponseDto);
     }
 
@@ -44,16 +49,18 @@ public class PlantController {
     @PutMapping("/plants/{plantId}")
     public ResponseEntity<PlantResponseDto> updatePlant(
             @PathVariable Long plantId,
-            @RequestBody PlantRequestDto plantRequestDto) {
-        PlantResponseDto updatePlant = plantService.updatePlant(plantId, plantRequestDto);
+            @RequestBody PlantRequestDto plantRequestDto,
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        PlantResponseDto updatePlant = plantService.updatePlant(plantId, plantRequestDto, principalDetails.getUser());
         return ResponseEntity.ok(updatePlant);
     }
 
     // 특정 식물 삭제하기
     @DeleteMapping("/plants/{plantId}")
     public ResponseEntity<Void> deletePlant(
-            @PathVariable Long plantId) {
-        plantService.deletePlant(plantId);
+            @PathVariable Long plantId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        plantService.deletePlant(plantId, principalDetails.getUser());
         return ResponseEntity.noContent().build();
     }
 }

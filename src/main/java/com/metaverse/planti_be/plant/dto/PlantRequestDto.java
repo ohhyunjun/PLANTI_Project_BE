@@ -11,4 +11,5 @@ public class PlantRequestDto {
     private String species;
     private LocalDateTime plantedAt;
     private PlantStage plantStage;
+    private String deviceSerial; // 추가
 }
