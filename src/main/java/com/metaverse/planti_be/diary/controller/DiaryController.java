@@ -1,11 +1,13 @@
 package com.metaverse.planti_be.diary.controller;
 
+import com.metaverse.planti_be.auth.domain.PrincipalDetails;
 import com.metaverse.planti_be.diary.dto.DiaryRequestDto;
 import com.metaverse.planti_be.diary.dto.DiaryResponseDto;
 import com.metaverse.planti_be.diary.service.DiaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,16 +23,20 @@ public class DiaryController {
     @PostMapping("/plants/{plantId}/diaries")
     public ResponseEntity<DiaryResponseDto> createDiary(
             @PathVariable Long plantId,
-            @RequestBody DiaryRequestDto diaryRequestDto){
-        DiaryResponseDto diaryResponseDto = diaryService.createDiary(plantId,diaryRequestDto);
+            @RequestBody DiaryRequestDto diaryRequestDto,
+            @AuthenticationPrincipal PrincipalDetails principalDetails){
+        Long userId = principalDetails.getUser().getId();
+        DiaryResponseDto diaryResponseDto = diaryService.createDiary(userId, plantId, diaryRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(diaryResponseDto);
     }
 
     // 특정 식물의 다이어리 내용 불러오기
     @GetMapping("/plants/{plantId}/diaries")
     public ResponseEntity<List<DiaryResponseDto>> getDiariesByPlantId(
-            @PathVariable Long plantId){
-        List<DiaryResponseDto> diaryResponseDtoList = diaryService.getDiariesByPlantId(plantId);
+            @PathVariable Long plantId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails){
+        Long userId = principalDetails.getUser().getId();
+        List<DiaryResponseDto> diaryResponseDtoList = diaryService.getDiariesByPlantId(userId, plantId);
         return ResponseEntity.ok(diaryResponseDtoList);
     }
 
@@ -38,34 +44,40 @@ public class DiaryController {
     @GetMapping("/plants/{plantId}/diaries/{diaryId}")
     public ResponseEntity<DiaryResponseDto> getDiaryById(
             @PathVariable Long plantId,
-            @PathVariable Long diaryId) {
-        DiaryResponseDto diaryResponseDto = diaryService.getDiaryById(plantId,diaryId);
+            @PathVariable Long diaryId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        Long userId = principalDetails.getUser().getId();
+        DiaryResponseDto diaryResponseDto = diaryService.getDiaryById(userId, plantId, diaryId);
         return ResponseEntity.ok(diaryResponseDto);
     }
 
     // 전체 다이어리 불러오기
     @GetMapping("/diaries")
-    public ResponseEntity<List<DiaryResponseDto>> getDiaries() {
-        List<DiaryResponseDto> diaryResponseDtoList = diaryService.getDiaries();
+    public ResponseEntity<List<DiaryResponseDto>> getDiaries(
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        Long userId = principalDetails.getUser().getId();
+        List<DiaryResponseDto> diaryResponseDtoList = diaryService.getDiaries(userId);
         return ResponseEntity.ok(diaryResponseDtoList);
     }
 
-    // 특정 식물의 다이어리의 특정 내용 수정하기
-    @PutMapping("/plants/{plantId}/diaries/{diaryId}")
+    // 특정 다이어리 수정하기
+    @PutMapping("/diaries/{diaryId}")
     public ResponseEntity<DiaryResponseDto> updateDiary(
-            @PathVariable Long plantId,
             @PathVariable Long diaryId,
-            @RequestBody DiaryRequestDto diaryRequestDto) {
-        DiaryResponseDto updatedDiary = diaryService.updateDiary(plantId, diaryId, diaryRequestDto);
+            @RequestBody DiaryRequestDto diaryRequestDto,
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        Long userId = principalDetails.getUser().getId();
+        DiaryResponseDto updatedDiary = diaryService.updateDiary(userId, diaryId, diaryRequestDto);
         return ResponseEntity.ok(updatedDiary);
     }
 
-    // 특정 식물의 다이어리의 특정 내용 삭제하기
-    @DeleteMapping("/plants/{plantId}/diaries/{diaryId}")
+    // 특정 다이어리 삭제하기
+    @DeleteMapping("/diaries/{diaryId}")
     public ResponseEntity<Void> deleteDiary(
-            @PathVariable Long plantId,
-            @PathVariable Long diaryId) {
-        diaryService.deleteDiary(plantId, diaryId);
+            @PathVariable Long diaryId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        Long userId = principalDetails.getUser().getId();
+        diaryService.deleteDiary(userId, diaryId);
         return ResponseEntity.noContent().build();
     }
 }
