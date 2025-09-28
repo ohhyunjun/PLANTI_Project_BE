@@ -60,24 +60,26 @@ public class DiaryController {
         return ResponseEntity.ok(diaryResponseDtoList);
     }
 
-    // 특정 다이어리 수정하기
-    @PutMapping("/diaries/{diaryId}")
+    // 특정 식물의 특정 다이어리 수정하기 - 계층적 URL로 변경
+    @PutMapping("/plants/{plantId}/diaries/{diaryId}")
     public ResponseEntity<DiaryResponseDto> updateDiary(
+            @PathVariable Long plantId,
             @PathVariable Long diaryId,
             @RequestBody DiaryRequestDto diaryRequestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
         Long userId = principalDetails.getUser().getId();
-        DiaryResponseDto updatedDiary = diaryService.updateDiary(userId, diaryId, diaryRequestDto);
+        DiaryResponseDto updatedDiary = diaryService.updateDiary(userId, plantId, diaryId, diaryRequestDto);
         return ResponseEntity.ok(updatedDiary);
     }
 
-    // 특정 다이어리 삭제하기
-    @DeleteMapping("/diaries/{diaryId}")
+    // 특정 식물의 특정 다이어리 삭제하기 - 계층적 URL로 변경
+    @DeleteMapping("/plants/{plantId}/diaries/{diaryId}")
     public ResponseEntity<Void> deleteDiary(
+            @PathVariable Long plantId,
             @PathVariable Long diaryId,
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
         Long userId = principalDetails.getUser().getId();
-        diaryService.deleteDiary(userId, diaryId);
+        diaryService.deleteDiary(userId, plantId, diaryId);
         return ResponseEntity.noContent().build();
     }
 }

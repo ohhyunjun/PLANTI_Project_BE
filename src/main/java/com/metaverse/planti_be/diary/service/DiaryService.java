@@ -69,9 +69,18 @@ public class DiaryService {
     }
 
     @Transactional
-    public DiaryResponseDto updateDiary(Long userId, Long diaryId, DiaryRequestDto diaryRequestDto) {
-        // 수정하려는 다이어리가 현재 로그인한 유저의 소유인지 먼저 확인합니다.
-        Diary diary = findDiaryOwnedByUser(diaryId, userId);
+    public DiaryResponseDto updateDiary(Long userId, Long plantId, Long diaryId, DiaryRequestDto diaryRequestDto) {
+        // 1. 식물 소유권 확인
+        findPlantOwnedByUser(plantId, userId);
+
+        // 2. 다이어리 존재 및 해당 식물 소속 확인
+        Diary diary = diaryRepository.findByIdAndPlantId(diaryId, plantId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 식물에서 다이어리를 찾을 수 없습니다."));
+
+        // 3. 다이어리 작성자 확인 (추가 보안)
+        if (!diary.getUser().getId().equals(userId)) {
+            throw new SecurityException("해당 다이어리에 대한 수정 권한이 없습니다.");
+        }
 
         diary.update(
                 diaryRequestDto.getTitle(),
@@ -81,9 +90,18 @@ public class DiaryService {
     }
 
     @Transactional
-    public void deleteDiary(Long userId, Long diaryId) {
-        // 삭제하려는 다이어리가 현재 로그인한 유저의 소유인지 먼저 확인합니다.
-        Diary diary = findDiaryOwnedByUser(diaryId, userId);
+    public void deleteDiary(Long userId, Long plantId, Long diaryId) {
+        // 1. 식물 소유권 확인
+        findPlantOwnedByUser(plantId, userId);
+
+        // 2. 다이어리 존재 및 해당 식물 소속 확인
+        Diary diary = diaryRepository.findByIdAndPlantId(diaryId, plantId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 식물에서 다이어리를 찾을 수 없습니다."));
+
+        // 3. 다이어리 작성자 확인 (추가 보안)
+        if (!diary.getUser().getId().equals(userId)) {
+            throw new SecurityException("해당 다이어리에 대한 삭제 권한이 없습니다.");
+        }
 
         diaryRepository.delete(diary);
     }
@@ -96,11 +114,5 @@ public class DiaryService {
     private Plant findPlantOwnedByUser(Long plantId, Long userId) {
         return plantRepository.findByIdAndUserId(plantId, userId)
                 .orElseThrow(() -> new SecurityException("해당 식물에 접근할 권한이 없습니다."));
-    }
-
-    private Diary findDiaryOwnedByUser(Long diaryId, Long userId) {
-        User user = findUserById(userId);
-        return diaryRepository.findByIdAndUser(diaryId, user)
-                .orElseThrow(() -> new SecurityException("해당 다이어리를 찾을 수 없거나 접근 권한이 없습니다."));
     }
 }
