@@ -21,7 +21,7 @@ public class AiArtController {
 
     // 해당 식물의 아트 만들기
     @PostMapping("/aiArts")
-    public ResponseEntity<AiArtResponseDto> createAiArtForPlant(
+    public ResponseEntity<AiArtResponseDto> createAiArt(
             @RequestBody AiArtRequestDto aiArtRequestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
         Long userId = principalDetails.getUser().getId();
@@ -31,7 +31,7 @@ public class AiArtController {
 
     // 유저의 아트 전체 조회
     @GetMapping("/aiArts/my")
-    public ResponseEntity<List<AiArtResponseDto>> getAiArtsByPlantId(
+    public ResponseEntity<List<AiArtResponseDto>> getMyAiArts(
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
         Long userId = principalDetails.getUser().getId();
         List<AiArtResponseDto> aiArtResponseDtoList = aiArtService.getAiArtsByUser(userId);
