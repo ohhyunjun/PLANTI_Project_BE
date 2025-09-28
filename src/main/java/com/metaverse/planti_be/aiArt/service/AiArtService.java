@@ -21,10 +21,9 @@ public class AiArtService {
     private final PlantRepository plantRepository;
 
     @Transactional
-    public AiArtResponseDto createAiArt(Long plantId, AiArtRequestDto aiArtRequestDto) {
-        Plant plant = plantRepository.findById(plantId).orElseThrow(()->
-                new IllegalArgumentException("해당 식물을 찾을 수 없습니다. Plant Id: " + plantId)
-        );
+    public AiArtResponseDto createAiArt(Long userId, Long plantId, AiArtRequestDto aiArtRequestDto) {
+        Plant plant = findPlantOwnedByUser(plantId, userId);
+
         AiArt aiArt = new AiArt(
                 aiArtRequestDto.getOriginalImageUrl(),
                 aiArtRequestDto.getArtImageUrl(),
@@ -44,24 +43,25 @@ public class AiArtService {
     }
 
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
-    public List<AiArtResponseDto> getAiArtsByPlantId(Long plantId) {
-        plantRepository.findById(plantId).orElseThrow(()->
-                new IllegalArgumentException("해당 식물을 찾을 수 없습니다. Plant ID: " +  plantId)
-        );
+    public List<AiArtResponseDto> getAiArtsByPlantId(Long userId, Long plantId) {
+        findPlantOwnedByUser(plantId, userId);
         return aiArtRepository.findByPlantIdOrderByCreatedAtDesc(plantId).stream()
                 .map(AiArtResponseDto::new)
                 .collect(Collectors.toList());
     }
 
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
-    public AiArtResponseDto getAiArtById(Long plantId, Long aiArtId) {
-        AiArt aiArt = findAiArtByPlantIdAndAiArtId(plantId, aiArtId);
+    public AiArtResponseDto getAiArtById(Long userId, Long plantId, Long aiArtId) {
+        Plant plant = findPlantOwnedByUser(plantId, userId);
+        AiArt aiArt = findAiArtByPlant(aiArtId, plant.getId());
         return new AiArtResponseDto(aiArt);
     }
 
     @Transactional
-    public AiArtResponseDto updateAiArt(Long plantId, Long aiArtId, AiArtRequestDto aiArtRequestDto) {
-        AiArt aiArt = findAiArtByPlantIdAndAiArtId(plantId, aiArtId);
+    public AiArtResponseDto updateAiArt(Long userId, Long plantId, Long aiArtId, AiArtRequestDto aiArtRequestDto) {
+        Plant plant = findPlantOwnedByUser(plantId, userId);
+        AiArt aiArt = findAiArtByPlant(aiArtId, plant.getId());
+
         aiArt.update(
                 aiArtRequestDto.getOriginalImageUrl(),
                 aiArtRequestDto.getStyle()
@@ -70,19 +70,21 @@ public class AiArtService {
     }
 
     @Transactional
-    public void deleteAiArt(Long plantId, Long aiArtId) {
-        AiArt aiArt = findAiArtByPlantIdAndAiArtId(plantId, aiArtId);
+    public void deleteAiArt(Long userId, Long plantId, Long aiArtId) {
+        Plant plant = findPlantOwnedByUser(plantId, userId);
+        AiArt aiArt = findAiArtByPlant(aiArtId, plant.getId());
+
         aiArtRepository.delete(aiArt);
     }
 
-    private AiArt findAiArtByPlantIdAndAiArtId(Long plantId, Long aiArtId) {
-        plantRepository.findById(plantId).orElseThrow(() ->
-                new IllegalArgumentException("해당 식물을 찾을 수 없습니다. Plant ID: " +  plantId)
-        );
+    private Plant findPlantOwnedByUser(Long plantId, Long userId) {
+        return plantRepository.findByIdAndUserId(plantId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 식물을 찾을 수 없거나 접근 권한이 없습니다."));
+    }
 
-        return aiArtRepository.findByIdAndPlantId(aiArtId, plantId).orElseThrow(() ->
-                new IllegalArgumentException("해당 식물(ID: " + plantId + ")에서 게시글(ID: " + aiArtId + ")을 찾을 수 없습니다.")
-        );
+    private AiArt findAiArtByPlant(Long aiArtId, Long plantId) {
+        return aiArtRepository.findByIdAndPlantId(aiArtId, plantId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 아트를 찾을 수 없습니다."));
     }
 
 }
