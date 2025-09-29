@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 
 @Getter
 @Setter
@@ -26,6 +28,9 @@ public class Diary extends TimeStamped {
     @Column(length = 1000, nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    @Column
+    private LocalDate targetDate;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plant_id", nullable = false)
     private Plant plant;
@@ -35,16 +40,18 @@ public class Diary extends TimeStamped {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public Diary(String title, String content, Plant plant, User user) {
+    public Diary(String title, String content, LocalDate targetDate, Plant plant, User user) {
         this.title = title;
         this.content = content;
+        this.targetDate = targetDate;
         this.plant = plant;
         this.user = user;
     }
 
-    public void update(String title, String content) {
+    public void update(String title, String content, LocalDate targetDate) {
         this.title = title;
         this.content = content;
+        this.targetDate = targetDate;
     }
 
 }
