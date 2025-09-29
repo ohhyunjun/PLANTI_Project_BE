@@ -25,7 +25,7 @@ public class PlantService {
     @Transactional
     public PlantResponseDto createPlant(PlantRequestDto plantRequestDto, User user) {
         // 1. 디바이스 존재 및 소유권 확인
-        Device device = findDeviceOwnedByUser(plantRequestDto.getDeviceSerial(), user);
+        Device device = findDeviceOwnedByUser(plantRequestDto.getSerialNumber(), user);
 
         // 2. 해당 디바이스에 이미 식물이 등록되어 있는지 확인
         if (plantRepository.existsByDeviceId(device.getId())) {
@@ -36,7 +36,7 @@ public class PlantService {
                 plantRequestDto.getName(),
                 plantRequestDto.getSpecies(),
                 plantRequestDto.getPlantedAt(),
-                plantRequestDto.getPlantStage(),
+                plantRequestDto.getStage(),
                 device
         );
         Plant savedPlant = plantRepository.save(plant);
@@ -62,8 +62,30 @@ public class PlantService {
         plant.update(
                 plantRequestDto.getName(),
                 plantRequestDto.getSpecies(),
-                plantRequestDto.getPlantStage()
+                plantRequestDto.getStage()
         );
+        return new PlantResponseDto(plant);
+    }
+
+    @Transactional
+    public PlantResponseDto patchPlant(Long plantId, PlantRequestDto plantRequestDto, User user) {
+        Plant plant = findPlantOwnedByUser(plantId, user);
+
+        // 이름이 null이 아니면 업데이트
+        if (plantRequestDto.getName() != null) {
+            plant.setName(plantRequestDto.getName());
+        }
+        // 종류가 null이 아니면 업데이트
+        if (plantRequestDto.getSpecies() != null) {
+            plant.setSpecies(plantRequestDto.getSpecies());
+        }
+        // 단계가 null이 아니면 업데이트
+        if (plantRequestDto.getStage() != null) {
+            plant.setPlantStage(plantRequestDto.getStage());
+        }
+        if (plantRequestDto.getPlantedAt() != null) {
+            plant.setPlantStage(plantRequestDto.getStage());
+        }
         return new PlantResponseDto(plant);
     }
 
