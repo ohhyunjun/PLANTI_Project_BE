@@ -5,11 +5,13 @@ import com.metaverse.planti_be.diary.dto.DiaryRequestDto;
 import com.metaverse.planti_be.diary.dto.DiaryResponseDto;
 import com.metaverse.planti_be.diary.service.DiaryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -57,6 +59,17 @@ public class DiaryController {
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
         Long userId = principalDetails.getUser().getId();
         List<DiaryResponseDto> diaryResponseDtoList = diaryService.getDiaries(userId);
+        return ResponseEntity.ok(diaryResponseDtoList);
+    }
+
+    // 특정 날짜의 다이어리 목록 불러오기
+    @GetMapping("/diaries/by-date")
+    public ResponseEntity<List<DiaryResponseDto>> getDiariesByDate(
+            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+
+        Long userId = principalDetails.getUser().getId();
+        List<DiaryResponseDto> diaryResponseDtoList = diaryService.getDiariesByDate(userId, date);
         return ResponseEntity.ok(diaryResponseDtoList);
     }
 

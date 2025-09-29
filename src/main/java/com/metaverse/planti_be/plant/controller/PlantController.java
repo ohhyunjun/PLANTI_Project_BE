@@ -45,7 +45,7 @@ public class PlantController {
         return ResponseEntity.ok(plantResponseDto);
     }
 
-    // 특정 식물 수정하기
+    // 특정 식물 전체 수정하기
     @PutMapping("/plants/{plantId}")
     public ResponseEntity<PlantResponseDto> updatePlant(
             @PathVariable Long plantId,
@@ -54,6 +54,17 @@ public class PlantController {
         PlantResponseDto updatePlant = plantService.updatePlant(plantId, plantRequestDto, principalDetails.getUser());
         return ResponseEntity.ok(updatePlant);
     }
+
+    // 특정 식물 부분 수정하기
+    @PatchMapping("/plants/{plantId}")
+    public ResponseEntity<PlantResponseDto> patchPlant(
+            @PathVariable Long plantId,
+            @RequestBody PlantRequestDto plantRequestDto,
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        PlantResponseDto patchedPlant = plantService.patchPlant(plantId, plantRequestDto, principalDetails.getUser());
+        return ResponseEntity.ok(patchedPlant);
+    }
+
 
     // 특정 식물 삭제하기
     @DeleteMapping("/plants/{plantId}")

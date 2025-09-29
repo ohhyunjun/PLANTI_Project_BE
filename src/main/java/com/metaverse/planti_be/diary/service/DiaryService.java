@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional; // Spring의 Transactional로 통일
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,6 +34,7 @@ public class DiaryService {
         Diary diary = new Diary(
                 diaryRequestDto.getTitle(),
                 diaryRequestDto.getContent(),
+                diaryRequestDto.getTargetDate(),
                 plant,
                 user // 다이어리에 작성자(User) 정보를 함께 저장합니다.
         );
@@ -68,6 +70,14 @@ public class DiaryService {
         return new DiaryResponseDto(diary);
     }
 
+    public List<DiaryResponseDto> getDiariesByDate(Long userId, LocalDate date) {
+        User user = findUserById(userId);
+        // DiaryRepository에 추가할 쿼리 메서드를 호출합니다.
+        return diaryRepository.findByUserAndTargetDate(user, date).stream()
+                .map(DiaryResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public DiaryResponseDto updateDiary(Long userId, Long plantId, Long diaryId, DiaryRequestDto diaryRequestDto) {
         // 1. 식물 소유권 확인
@@ -84,7 +94,8 @@ public class DiaryService {
 
         diary.update(
                 diaryRequestDto.getTitle(),
-                diaryRequestDto.getContent()
+                diaryRequestDto.getContent(),
+                diaryRequestDto.getTargetDate()
         );
         return new DiaryResponseDto(diary);
     }
