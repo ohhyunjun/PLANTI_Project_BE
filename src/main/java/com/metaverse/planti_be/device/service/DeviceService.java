@@ -5,6 +5,9 @@ import com.metaverse.planti_be.device.domain.Device;
 import com.metaverse.planti_be.device.dto.DeviceResponseDto;
 import com.metaverse.planti_be.device.repository.DeviceRepository;
 import com.metaverse.planti_be.plant.repository.PlantRepository;
+import com.metaverse.planti_be.sensor.domain.SensorType;
+import com.metaverse.planti_be.sensor.dto.SensorDataResponseDto;
+import com.metaverse.planti_be.sensor.service.SensorLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -18,6 +21,7 @@ import java.util.stream.Collectors;
 public class DeviceService {
     private final DeviceRepository deviceRepository;
     private final PlantRepository plantRepository;
+    private final SensorLogService sensorLogService;
 
     @Transactional
     public void registerDevice(String serialNumber, String deviceNickname, User user){
@@ -83,5 +87,44 @@ public class DeviceService {
 
         deviceRepository.delete(device);
     }
+
+    @Transactional(readOnly = true)
+    public DeviceResponseDto getDevice(String serialNumber, User user) {
+        Device device = deviceRepository.findById(serialNumber)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 기기입니다."));
+
+        if (!device.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("해당 기기에 대한 권한이 없습니다.");
+        }
+
+        DeviceResponseDto.PlantSummaryDto plantSummary = plantRepository.findByDeviceId(device.getId())
+                .map(plant -> new DeviceResponseDto.PlantSummaryDto(
+                        plant.getId(),
+                        plant.getName(),
+                        plant.getSpecies()
+                ))
+                .orElse(null);
+
+        return new DeviceResponseDto(device, plantSummary);
+    }
+
+    @Transactional(readOnly = true)
+    public SensorDataResponseDto getSensorData(String serialNumber, User user) {
+        // 소유권 확인
+        Device device = deviceRepository.findById(serialNumber)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 기기입니다."));
+
+        if (!device.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("해당 기기에 대한 권한이 없습니다.");
+        }
+
+        // 센서 데이터 평균 계산
+        Double avgTemp = sensorLogService.getAverageSensorValue(serialNumber, SensorType.TEMPERATURE);
+        Double avgHumidity = sensorLogService.getAverageSensorValue(serialNumber, SensorType.HUMIDITY);
+
+        return new SensorDataResponseDto(avgTemp, avgHumidity);
+    }
+
+
 
 }

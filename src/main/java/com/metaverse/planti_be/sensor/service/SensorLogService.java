@@ -3,11 +3,15 @@ package com.metaverse.planti_be.sensor.service;
 import com.metaverse.planti_be.device.domain.Device;
 import com.metaverse.planti_be.device.repository.DeviceRepository;
 import com.metaverse.planti_be.sensor.domain.SensorLog;
+import com.metaverse.planti_be.sensor.domain.SensorType;
 import com.metaverse.planti_be.sensor.dto.SensorLogRequestDto;
 import com.metaverse.planti_be.sensor.repository.SensorLogRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -32,5 +36,24 @@ public class SensorLogService {
 
         // 4. SensorLog를 데이터베이스에 저장합니다.
         sensorLogRepository.save(newLog);
+    }
+
+    public Double getAverageSensorValue(String serialNumber, SensorType sensorType) {
+        List<SensorLog> logs = sensorLogRepository.findTop10ByDeviceAndSensorType(
+                serialNumber,
+                sensorType,
+                PageRequest.of(0, 10)
+        );
+
+        if (logs.isEmpty()) {
+            return null; // 데이터 없음
+        }
+
+        // 평균 계산
+        double sum = logs.stream()
+                .mapToDouble(log -> Double.parseDouble(log.getValue()))
+                .sum();
+
+        return sum / logs.size();
     }
 }

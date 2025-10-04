@@ -6,6 +6,7 @@ import com.metaverse.planti_be.device.dto.DeviceCreateRequestDto;
 import com.metaverse.planti_be.device.dto.DeviceRegistrationRequestDto;
 import com.metaverse.planti_be.device.dto.DeviceResponseDto;
 import com.metaverse.planti_be.device.service.DeviceService;
+import com.metaverse.planti_be.sensor.dto.SensorDataResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -75,6 +76,38 @@ public class DeviceController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        }
+    }
+
+    // 특정 기기 조회
+    @GetMapping("/{serialNumber}")
+    public ResponseEntity<DeviceResponseDto> getDevice(
+            @PathVariable String serialNumber,
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        try {
+            User currentUser = principalDetails.getUser();
+            DeviceResponseDto device = deviceService.getDevice(serialNumber, currentUser);
+            return ResponseEntity.ok(device);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
+    }
+
+    // 센서 데이터 조회
+    @GetMapping("/{serialNumber}/sensors")
+    public ResponseEntity<SensorDataResponseDto> getSensorData(
+            @PathVariable String serialNumber,
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        try {
+            User currentUser = principalDetails.getUser();
+            SensorDataResponseDto sensorData = deviceService.getSensorData(serialNumber, currentUser);
+            return ResponseEntity.ok(sensorData);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
     }
 }
