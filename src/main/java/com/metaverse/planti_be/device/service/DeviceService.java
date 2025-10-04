@@ -2,16 +2,22 @@ package com.metaverse.planti_be.device.service;
 
 import com.metaverse.planti_be.auth.domain.User;
 import com.metaverse.planti_be.device.domain.Device;
-import com.metaverse.planti_be.device.dto.DeviceCreateRequestDto;
+import com.metaverse.planti_be.device.dto.DeviceResponseDto;
 import com.metaverse.planti_be.device.repository.DeviceRepository;
+import com.metaverse.planti_be.plant.repository.PlantRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class DeviceService {
     private final DeviceRepository deviceRepository;
+    private final PlantRepository plantRepository;
 
     @Transactional
     public void registerDevice(String serialNumber, String deviceNickname, User user){
@@ -31,6 +37,26 @@ public class DeviceService {
         // 5. 기기의 상태를 변경합니다.
         device.setStatus(true);
     }
+
+    // 사용자의 모든 기기 조회 로직 추가
+    @Transactional(readOnly = true)
+    public List<DeviceResponseDto> getUserDevices(User user) {
+        List<Device> devices = deviceRepository.findByUserId(user.getId());
+
+        return devices.stream().map(device -> {
+            // 해당 기기에 연결된 식물이 있는지 확인
+            DeviceResponseDto.PlantSummaryDto plantSummary = plantRepository.findByDeviceId(device.getId())
+                    .map(plant -> new DeviceResponseDto.PlantSummaryDto(
+                            plant.getId(),
+                            plant.getName(),
+                            plant.getSpecies()
+                    ))
+                    .orElse(null);
+
+            return new DeviceResponseDto(device, plantSummary);
+        }).collect(Collectors.toList());
+    }
+
     // 관리자용 기기 생성 메서드
     @Transactional
     public void createDeviceByAdmin(String serialNumber) {
@@ -44,4 +70,18 @@ public class DeviceService {
         // Device만 저장하면 Cascade 옵션에 의해 Led도 함께 저장됩니다.
         deviceRepository.save(newDevice);
     }
+
+    @Transactional
+    public void deleteDevice(String serialNumber, User user) {
+        Device device = deviceRepository.findById(serialNumber)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 기기입니다."));
+
+        // 소유권 확인
+        if (!device.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("해당 기기에 대한 권한이 없습니다.");
+        }
+
+        deviceRepository.delete(device);
+    }
+
 }
