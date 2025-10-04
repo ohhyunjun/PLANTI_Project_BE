@@ -10,11 +10,7 @@ import java.time.LocalDateTime;
 public class PlantRequestDto {
     private String name;
     private String species;
-    @JsonProperty("planted_at")
     private LocalDateTime plantedAt;
-
     private PlantStage stage;
-
-    @JsonProperty("serial_number")
     private String serialNumber;
 }

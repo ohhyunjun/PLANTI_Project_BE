@@ -66,7 +66,7 @@ public class SecurityConfig {
                         // 2. 인증없는 엔드포인트들
                         .requestMatchers(
                                 "/api/auth/**",         // 회원가입
-                                "/api/sensor_log/**",   // 센서 데이터 수집
+                                "/api/sensor_log/",   // 센서 데이터 수집
                                 "/api/photos/**"
                         ).permitAll()
                         // 3. 위에서 허용한 경로 외의 모든 요청은 반드시 인증이 필요함

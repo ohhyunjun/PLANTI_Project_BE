@@ -9,7 +9,7 @@ import java.time.LocalTime;
 
 @Getter
 public class LedControlRequestDto {
-    @Min(value = 1)
+    @Min(value = 0)
     @Max(value = 5)
     private int intensity;
 
