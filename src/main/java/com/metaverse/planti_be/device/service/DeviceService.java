@@ -81,11 +81,22 @@ public class DeviceService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 기기입니다."));
 
         // 소유권 확인
-        if (!device.getUser().getId().equals(user.getId())) {
+        if (device.getUser() == null || !device.getUser().getId().equals(user.getId())) {
             throw new AccessDeniedException("해당 기기에 대한 권한이 없습니다.");
         }
 
-        deviceRepository.delete(device);
+        // 기기를 삭제하는 대신 소유권만 해제 (관리자가 처음 등록한 상태로 되돌림)
+        device.setUser(null);               // 소유자 제거
+        device.setDeviceNickname(null);     // 닉네임 제거
+        device.setStatus(false);            // 상태를 미사용으로 변경
+
+        // 연결된 식물이 있다면 같이 제거
+        plantRepository.findByDeviceId(device.getId()).ifPresent(plant -> {
+            plantRepository.delete(plant);
+        });
+
+        // device 자체는 삭제하지 않고 업데이트만 함
+        deviceRepository.save(device);
     }
 
     @Transactional(readOnly = true)

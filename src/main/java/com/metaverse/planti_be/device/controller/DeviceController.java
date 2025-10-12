@@ -71,7 +71,7 @@ public class DeviceController {
         try {
             User currentUser = principalDetails.getUser();
             deviceService.deleteDevice(serialNumber, currentUser);
-            return ResponseEntity.ok("기기가 성공적으로 삭제되었습니다.");
+            return ResponseEntity.ok("기기 연결이 성공적으로 해제되었습니다."); // 이 부분만 수정
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (AccessDeniedException e) {
