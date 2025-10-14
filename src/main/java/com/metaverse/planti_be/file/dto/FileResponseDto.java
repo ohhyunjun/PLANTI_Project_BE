@@ -10,12 +10,15 @@ public class FileResponseDto {
     private Long id;
     private String originalFileName;
     private String storedFileName;
-    private String filePath;
+
+    // ✅ 프론트엔드에서 사용할 URL
+    private String fileUrl;
 
     public FileResponseDto(File file){
         this.id = file.getId();
         this.originalFileName = file.getOriginalFileName();
         this.storedFileName = file.getStoredFileName();
-        this.filePath = file.getFilePath();
+        // ✅ filePath에 URL이 저장되어 있음
+        this.fileUrl = file.getFilePath();
     }
 }
