@@ -55,14 +55,38 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponseDto updatePost(PrincipalDetails principalDetails, Long postId, PostRequestDto postRequestDto){
+    public PostResponseDto updatePost(
+            PrincipalDetails principalDetails,
+            Long postId,
+            PostRequestDto postRequestDto,
+            MultipartFile file,
+            Boolean deleteFile){
         Post post = findPost(postId);
         checkPostOwnership(post, principalDetails);
 
+        // 제목과 내용 수정
         post.update(
                 postRequestDto.getTitle(),
                 postRequestDto.getContent()
         );
+
+        // 파일 삭제 요청 처리
+        if (deleteFile != null && deleteFile) {
+            fileService.deleteFilesByPost(post);
+            System.out.println("📝 게시글 수정: 기존 파일 삭제 완료");
+        }
+
+        // 새 파일 업로드 처리
+        if (file != null && !file.isEmpty()) {
+            // 기존 파일이 있으면 삭제 후 새 파일 업로드
+            if (!post.getFiles().isEmpty()) {
+                fileService.deleteFilesByPost(post);
+                System.out.println("📝 게시글 수정: 기존 파일 교체");
+            }
+            fileService.uploadFile(post, file);
+            System.out.println("📝 게시글 수정: 새 파일 업로드 완료");
+        }
+
         return new PostResponseDto(post);
     }
 
