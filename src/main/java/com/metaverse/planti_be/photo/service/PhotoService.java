@@ -38,7 +38,8 @@ public class PhotoService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @Value("${file.upload-dir}")
+    // ✅ 수정: file.upload-dir → file.upload-dir.camera
+    @Value("${file.upload-dir.camera}")
     private String uploadDir;
 
     @Value("${ai.server.detailed.url}")
@@ -108,7 +109,7 @@ public class PhotoService {
                 System.out.println("🎯 AI 분석 결과:");
                 System.out.println("   - 최고 검출: " + bestResult);
                 System.out.println("   - 평균 신뢰도: " + avgConfidence);
-                System.out.println("   - 총 검출 수: " + totalDetected);
+                System.out.println("   - 이 검출 수: " + totalDetected);
 
             }
 
@@ -177,7 +178,7 @@ public class PhotoService {
                 System.out.println("🔍 임시 분석 결과:");
                 System.out.println("   - 최고 검출: " + bestResult);
                 System.out.println("   - 평균 신뢰도: " + avgConfidence);
-                System.out.println("   - 총 검출 수: " + totalDetected);
+                System.out.println("   - 이 검출 수: " + totalDetected);
 
                 return new PhotoResponseDto(tempPhoto);
             }

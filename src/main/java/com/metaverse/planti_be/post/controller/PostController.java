@@ -49,9 +49,11 @@ public class PostController {
     @PutMapping("/posts/{postId}")
     public ResponseEntity<PostResponseDto> updatePost(
             @PathVariable Long postId,
-            @RequestBody PostRequestDto postRequestDto,
+            @RequestPart("postData") PostRequestDto postRequestDto,
+            @RequestPart(value = "file", required = false) MultipartFile file,
+            @RequestParam(value = "deleteFile", required = false, defaultValue = "false") Boolean deleteFile,
             @AuthenticationPrincipal PrincipalDetails principalDetails){
-        PostResponseDto updatedPost = postService.updatePost(principalDetails, postId, postRequestDto);
+        PostResponseDto updatedPost = postService.updatePost(principalDetails, postId, postRequestDto, file, deleteFile);
         return ResponseEntity.ok(updatedPost);
     }
 
