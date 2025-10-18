@@ -2,6 +2,7 @@ package com.metaverse.planti_be.sensor.service;
 
 import com.metaverse.planti_be.device.domain.Device;
 import com.metaverse.planti_be.device.repository.DeviceRepository;
+import com.metaverse.planti_be.notice.service.NoticeService;
 import com.metaverse.planti_be.sensor.domain.SensorLog;
 import com.metaverse.planti_be.sensor.domain.SensorType;
 import com.metaverse.planti_be.sensor.dto.SensorLogRequestDto;
@@ -19,6 +20,8 @@ public class SensorLogService {
 
     private final SensorLogRepository sensorLogRepository;
     private final DeviceRepository deviceRepository; // Device 엔티티를 찾기 위해 필요
+    private final NoticeService noticeService;
+
 
     // DTO를 받아 로그를 생성하고 저장하는 메서드
     @Transactional
@@ -36,6 +39,31 @@ public class SensorLogService {
 
         // 4. SensorLog를 데이터베이스에 저장합니다.
         sensorLogRepository.save(newLog);
+
+        // 물 수위 센서일 경우 물 부족 알림 체크
+        if (newLog.getSensor_type() == SensorType.WATER_LEVEL) {
+            checkWaterLevel(device, Double.parseDouble(newLog.getValue()));
+        }
+    }
+
+    // 물 수위 알림 생성 로직
+    private void checkWaterLevel(Device device, Double waterLevel) {
+        // 물 높이가 14cm 이상이면 물 부족 (센서가 물 위 거리를 측정)
+        final double WATER_SHORTAGE_THRESHOLD = 14.0;
+
+        if (waterLevel >= WATER_SHORTAGE_THRESHOLD) {
+            // Device의 소유자(User)가 필요합니다
+            if (device.getUser() != null) {
+                noticeService.createWaterShortageNotice(
+                        device.getUser(),
+                        device,
+                        waterLevel
+                );
+
+                System.out.println("💧 물통 수위 부족 알림 생성: " + device.getDeviceNickname()
+                        + " (수위: " + (20-waterLevel) + "cm)");
+            }
+        }
     }
 
     public Double getAverageSensorValue(String serialNumber, SensorType sensorType) {

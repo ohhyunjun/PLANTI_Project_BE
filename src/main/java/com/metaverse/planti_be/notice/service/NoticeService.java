@@ -1,7 +1,9 @@
 package com.metaverse.planti_be.notice.service;
 
 import com.metaverse.planti_be.auth.domain.User;
+import com.metaverse.planti_be.device.domain.Device;
 import com.metaverse.planti_be.notice.domain.Notice;
+import com.metaverse.planti_be.notice.domain.NoticeType;
 import com.metaverse.planti_be.notice.dto.NoticeResponseDto;
 import com.metaverse.planti_be.notice.repository.NoticeRepository;
 import lombok.RequiredArgsConstructor;
@@ -76,5 +78,27 @@ public class NoticeService {
         return noticeRepository.findById(noticeId).orElseThrow(() ->
                 new IllegalArgumentException("해당 알림은 존재하지 않습니다.")
         );
+    }
+
+    // 물통 수위 부족 알림 생성
+    @Transactional
+    public void createWaterShortageNotice(User user, Device device, Double waterLevel) {
+        // 중복 방지: 이미 읽지 않은 동일 알림이 있으면 생성 안 함
+        if (noticeRepository.existsByUserAndDeviceAndNoticeTypeAndIsReadFalse(
+                user, device, NoticeType.WATER_SHORTAGE)) {
+            return;
+        }
+
+        Notice notice = new Notice(
+                String.format("💧 %s의 물통 수위가 낮습니다. 물을 채워주세요!",
+                        device.getDeviceNickname()),
+                NoticeType.WATER_SHORTAGE,
+                user,
+                device,
+                1  // 높은 우선순위
+        );
+
+        noticeRepository.save(notice);
+        System.out.println("물통 수위 부족 알림 생성 완료");
     }
 }
