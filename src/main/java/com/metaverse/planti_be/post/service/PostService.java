@@ -3,6 +3,7 @@ package com.metaverse.planti_be.post.service;
 import com.metaverse.planti_be.auth.domain.PrincipalDetails;
 import com.metaverse.planti_be.auth.domain.User;
 import com.metaverse.planti_be.file.service.FileService;
+import com.metaverse.planti_be.likes.postLike.repository.PostLikeRepository;
 import com.metaverse.planti_be.post.domain.Post;
 import com.metaverse.planti_be.post.dto.PostRequestDto;
 import com.metaverse.planti_be.post.dto.PostResponseDto;
@@ -20,6 +21,7 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final FileService fileService;
+    private final PostLikeRepository postLikeRepository;
 
     @Transactional
     public PostResponseDto createPost(PrincipalDetails principalDetails, PostRequestDto postRequestDto, MultipartFile file) {
@@ -34,24 +36,40 @@ public class PostService {
         if (file != null && !file.isEmpty()) {
             fileService.uploadFile(savedPost, file);
         }
-        PostResponseDto postResponseDto = new PostResponseDto(savedPost);
+        PostResponseDto postResponseDto = new PostResponseDto(savedPost, 0);
         return postResponseDto;
     }
 
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<PostResponseDto> getPosts() {
-        List<PostResponseDto> PostResponseDtoList = postRepository
-                .findAllByOrderByCreatedAtDesc()
-                .stream()
-                .map(PostResponseDto::new)
+        List<Post> posts = postRepository.findAllByOrderByCreatedAtDesc();
+
+        List<PostResponseDto> PostResponseDtoList = posts.stream()
+                .map(post -> {
+                    // 1. 각 Post에 대한 좋아요 수를 조회합니다. (PostLikeRepository 필요)
+                    int likesCount = (int) postLikeRepository.countByPost(post);
+
+                    // 2. ⭐ Post 객체와 likesCount를 인자로 넘겨 새로운 DTO 생성자를 호출합니다.
+                    return new PostResponseDto(post, likesCount);
+                })
                 .toList();
+
         return PostResponseDtoList;
     }
 
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
-    public PostResponseDto getPostById(Long postId) {
+    public PostResponseDto getPostById(PrincipalDetails principalDetails,Long postId) {
         Post post = findPost(postId);
-        return new PostResponseDto(post);
+
+        int currentLikesCount = (int) postLikeRepository.countByPost(post);
+        boolean liked = false;
+        System.out.println(principalDetails.getUser());
+        if (principalDetails != null) {
+            User currentUser = principalDetails.getUser();
+            liked = postLikeRepository.findByPostAndUser(post, currentUser).isPresent();
+        }
+
+        return new PostResponseDto(post, currentLikesCount, liked);
     }
 
     @Transactional
@@ -63,7 +81,11 @@ public class PostService {
                 postRequestDto.getTitle(),
                 postRequestDto.getContent()
         );
-        return new PostResponseDto(post);
+
+        int likesCount = (int) postLikeRepository.countByPost(post);
+        boolean liked = postLikeRepository.findByPostAndUser(post, principalDetails.getUser()).isPresent();
+
+        return new PostResponseDto(post, likesCount, liked);
     }
 
     @Transactional
@@ -74,7 +96,7 @@ public class PostService {
         postRepository.delete(post);
     }
 
-    private Post findPost(Long postId) {
+    public Post findPost(Long postId) {
         return postRepository.findById(postId).orElseThrow(() ->
                 new IllegalArgumentException("해당 게시글은 존재하지 않습니다.")
         );

@@ -12,8 +12,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "article_like", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"user_id", "article_id"})
+@Table(name = "post_like", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"user_id", "post_id"})
 })
 public class PostLike extends TimeStamped {
 
@@ -33,6 +33,4 @@ public class PostLike extends TimeStamped {
         this.post = post;
         this.user = user;
     }
-
-
 }

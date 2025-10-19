@@ -40,8 +40,9 @@ public class PostController {
     // 특정 글 불러오기
     @GetMapping("/posts/{postId}")
     public ResponseEntity<PostResponseDto> getPostById(
-            @PathVariable Long postId){
-        PostResponseDto postResponseDto = postService.getPostById(postId);
+            @PathVariable Long postId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        PostResponseDto postResponseDto = postService.getPostById(principalDetails, postId);
         return ResponseEntity.ok(postResponseDto);
     }
 

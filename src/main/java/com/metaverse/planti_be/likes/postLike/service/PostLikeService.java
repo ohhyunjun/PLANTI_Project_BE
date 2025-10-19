@@ -19,14 +19,11 @@ import java.util.Optional;
 public class PostLikeService {
     private final PostLikeRepository postLikeRepository;
     private final PostService postService;
-    private final PostRepository postRepository;
 
     @Transactional
     public PostLikeResponseDto togglePostLike(PrincipalDetails principalDetails, Long postId) {
 
-        Post post = postRepository.findById(postId).orElseThrow(() ->
-                new IllegalArgumentException("해당 게시글은 존재하지 않습니다.")
-        );
+        Post post = postService.findPost(postId);
 
         User currentUser = principalDetails.getUser();
 
