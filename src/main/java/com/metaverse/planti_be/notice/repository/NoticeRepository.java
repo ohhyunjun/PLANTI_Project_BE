@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.metaverse.planti_be.auth.domain.User;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface NoticeRepository extends JpaRepository<Notice, Long> {
     // 사용자별 알림 조회
@@ -21,4 +22,7 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
 
     // 읽지 않은 알림 개수 조회
     long countByUserAndIsReadFalse(User user);
+
+    // 가장 최근의 특정 타입 알림을 조회하기 위한 메서드
+    Optional<Notice> findTopByUserAndDeviceAndNoticeTypeOrderByCreatedAtDesc(User user, Device device, NoticeType noticeType);
 }
