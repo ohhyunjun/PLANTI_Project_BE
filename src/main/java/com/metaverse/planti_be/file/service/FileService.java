@@ -24,6 +24,9 @@ public class FileService {
     @Value("${file.upload-dir.posts}")
     private String postsUploadDir;
 
+    @Value("${file.upload-dir.ai-arts:uploads/ai-arts}")
+    private String aiArtsUploadDir;
+
     @Value("${app.base-url}")
     private String baseUrl;
 
@@ -100,5 +103,45 @@ public class FileService {
         post.getFiles().clear();
 
         System.out.println("게시글의 모든 파일 삭제 완료");
+    }
+
+    //AI 아트용 이미지 업로드 (Post와 연결되지 않음)
+    public String uploadAiArtImage(MultipartFile multipartFile) {
+        if (multipartFile == null || multipartFile.isEmpty()) {
+            throw new IllegalArgumentException("파일이 비어있습니다.");
+        }
+
+        String originalFileName = multipartFile.getOriginalFilename();
+        String storedFileName = UUID.randomUUID() + "_" + originalFileName;
+
+        // 절대 경로 생성 및 정규화
+        Path uploadPath = Paths.get(aiArtsUploadDir).toAbsolutePath().normalize();
+
+        // 디렉토리 생성
+        try {
+            Files.createDirectories(uploadPath);
+        } catch (IOException e) {
+            throw new RuntimeException("AI 아트 이미지 저장 디렉토리 생성 실패: " + uploadPath, e);
+        }
+
+        // 파일 저장
+        Path filePath = uploadPath.resolve(storedFileName);
+
+        try {
+            multipartFile.transferTo(filePath.toFile());
+        } catch (IOException e) {
+            throw new RuntimeException("AI 아트 이미지 저장 실패: " + filePath, e);
+        }
+
+        // 웹 접근 URL 생성
+        String fileUrl = baseUrl + "/api/uploads/ai-arts/" + storedFileName;
+
+        System.out.println("🎨 AI 아트 이미지 업로드 완료:");
+        System.out.println("   - 원본: " + originalFileName);
+        System.out.println("   - 저장: " + storedFileName);
+        System.out.println("   - 경로: " + filePath);
+        System.out.println("   - URL: " + fileUrl);
+
+        return fileUrl;
     }
 }
