@@ -1,10 +1,12 @@
 package com.metaverse.planti_be.aiArt.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
 @Getter
 public class AiArtRequestDto {
+    @NotBlank
     private String originalImageUrl;
-    private String artImageUrl;
+    @NotBlank
     private String style;
 }

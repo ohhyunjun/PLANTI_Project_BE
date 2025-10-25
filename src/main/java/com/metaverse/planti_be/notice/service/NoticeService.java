@@ -10,6 +10,8 @@ import com.metaverse.planti_be.notice.domain.Notice;
 import com.metaverse.planti_be.notice.domain.NoticeType;
 import com.metaverse.planti_be.notice.dto.NoticeResponseDto;
 import com.metaverse.planti_be.notice.repository.NoticeRepository;
+import com.metaverse.planti_be.plant.domain.PlantStage;
+import com.metaverse.planti_be.plant.repository.PlantRepository;
 import lombok.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,8 @@ public class NoticeService {
     // JSON 처리를 위한 ObjectMapper와 임계값 상수
     private final ObjectMapper objectMapper = new ObjectMapper();
     private static final double SIGNIFICANT_CHANGE_THRESHOLD = 0.2; // 20%
+
+    private final PlantRepository plantRepository;
 
     // 수확 알림의 추가 데이터(additionalData)를 관리하기 위한 내부 DTO
     @Getter
@@ -131,6 +135,15 @@ public class NoticeService {
             return;
         }
 
+        //Plant 상태 업데이트
+        plantRepository.findByDeviceId(device.getId())
+                .ifPresent(plant -> {
+                    if (plant.getPlantStage() == PlantStage.SEED) {
+                        plant.setPlantStage(PlantStage.GERMINATION);
+                        System.out.println("식물 상태가 SEED → GERMINATION으로 변경되었습니다.");
+                    }
+                });
+
         Notice notice = new Notice(
                 String.format("%s에서 새싹이 처음 발견되었습니다! 식물이 자라기 시작했어요!",
                         device.getDeviceNickname()),
@@ -153,6 +166,14 @@ public class NoticeService {
             System.out.println("이미 열매 첫 발견 알림이 생성되었습니다.");
             return;
         }
+
+        plantRepository.findByDeviceId(device.getId())
+                .ifPresent(plant -> {
+                    if (plant.getPlantStage() != PlantStage.FRUIT) {
+                        plant.setPlantStage(PlantStage.FRUIT);
+                        System.out.println("식물 상태가 FRUIT로 변경되었습니다.");
+                    }
+                });
 
         Notice notice = new Notice(
                 String.format("%s에서 열매가 처음 발견되었습니다! (개수: %d개) 축하드립니다!",
@@ -253,4 +274,5 @@ public class NoticeService {
             return true; // 데이터 파싱에 실패하면 안전하게 변화가 있는 것으로 간주
         }
     }
+
 }
