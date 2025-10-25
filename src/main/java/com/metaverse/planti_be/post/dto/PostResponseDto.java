@@ -19,6 +19,8 @@ public class PostResponseDto {
     private String content;
     private String authorUsername;
     private String authorEmail;
+    private boolean liked;
+    private int likesCount;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
@@ -28,7 +30,7 @@ public class PostResponseDto {
     private List<CommentResponseDto> comments;
     private List<FileResponseDto> files;
 
-    public PostResponseDto(Post post) {
+    public PostResponseDto(Post post, int likesCount, boolean liked) {
         this.id = post.getId();
         this.title = post.getTitle();
         this.content = post.getContent();
@@ -38,10 +40,10 @@ public class PostResponseDto {
         if (post.getUser() != null) {
             this.authorUsername = post.getUser().getUsername();
             this.authorEmail = post.getUser().getEmail();
-        } else {
-            this.authorUsername = null;
-            this.authorEmail = null;
         }
+
+        this.likesCount = likesCount;
+        this.liked = liked;
 
         if (post.getComments() != null) {
             this.comments = post.getComments().stream()
@@ -58,6 +60,24 @@ public class PostResponseDto {
         } else {
             this.files = List.of();
         }
+    }
+
+    public PostResponseDto(Post post, int likesCount) {
+        this.id = post.getId();
+        this.title = post.getTitle();
+        this.content = post.getContent();
+        this.createdAt = post.getCreatedAt();
+        this.updatedAt = post.getUpdatedAt();
+
+        if (post.getUser() != null) {
+            this.authorUsername = post.getUser().getUsername();
+        }
+
+        this.likesCount = likesCount;
+        this.liked = false;
+
+        this.comments = List.of();
+        this.files = List.of();
     }
 
 }
