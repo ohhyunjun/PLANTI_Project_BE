@@ -18,10 +18,10 @@ public class AiArt extends TimeStamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 500)
     private String originalImageUrl;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 500)
     private String artImageUrl;
 
     @Column(nullable = false)
@@ -38,8 +38,10 @@ public class AiArt extends TimeStamped {
         this.artImageUrl = artImageUrl;
         this.style = style;
     }
-    public void update(String originalImageUrl, String style) {
+
+    public void update(String originalImageUrl, String artImageUrl, String style) {
         this.originalImageUrl = originalImageUrl;
+        this.artImageUrl = artImageUrl; // 새로 생성된 이미지 URL을 받도록 수정
         this.style = style;
     }
 }
