@@ -37,6 +37,12 @@ public class PostController {
         return ResponseEntity.ok(postResponseDtoList);
     }
 
+    @GetMapping("/posts/hot")
+    public ResponseEntity<List<PostResponseDto>> getHotPosts(){
+        List<PostResponseDto> postResponseDtoList = postService.getHotPosts();
+        return ResponseEntity.ok(postResponseDtoList);
+    }
+
     // 특정 글 불러오기
     @GetMapping("/posts/{postId}")
     public ResponseEntity<PostResponseDto> getPostById(

@@ -72,6 +72,19 @@ public class PostService {
         return new PostResponseDto(post, currentLikesCount, liked);
     }
 
+    public List<PostResponseDto> getHotPosts() {
+        List<Post> posts = postRepository.findPostsWithAtLeastTenLikes();
+
+        List<PostResponseDto> postResponseDtoList = posts.stream()
+                .map(post -> {
+                    int likesCount = (int) postLikeRepository.countByPost(post);
+
+                    return new PostResponseDto(post, likesCount);
+                })
+                .toList();
+        return postResponseDtoList;
+    }
+
     @Transactional
     public PostResponseDto updatePost(PrincipalDetails principalDetails, Long postId, PostRequestDto postRequestDto){
         Post post = findPost(postId);
