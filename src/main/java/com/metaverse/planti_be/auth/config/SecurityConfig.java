@@ -60,7 +60,8 @@ public class SecurityConfig {
                                 "/api/aiArts",                  // AI Art 조회
                                 "/api/posts",
                                 "/api/posts/**",                // 특정 게시글 및 댓글 조회 허용
-                                "/api/comments"                 // 전체 댓글 조회 허용
+                                "/api/comments",                 // 전체 댓글 조회 허용
+                                "/api/uploads/**"
                         ).permitAll()
 
                         // 2. 인증없는 엔드포인트들

@@ -19,6 +19,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import com.metaverse.planti_be.notice.service.NoticeService;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,10 +36,11 @@ public class PhotoService {
 
     private final PhotoRepository photoRepository;
     private final DeviceRepository deviceRepository;
+    private final NoticeService noticeService;
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @Value("${file.upload-dir}")
+    @Value("${file.upload-dir.camera}")
     private String uploadDir;
 
     @Value("${ai.server.detailed.url}")
@@ -109,7 +111,21 @@ public class PhotoService {
                 System.out.println("   - 최고 검출: " + bestResult);
                 System.out.println("   - 평균 신뢰도: " + avgConfidence);
                 System.out.println("   - 총 검출 수: " + totalDetected);
+                System.out.println("   - 전체 응답: " + detailedResponse);
 
+                // 디바이스 사용자 확인
+                System.out.println("🔍 디바이스 정보:");
+                System.out.println("   - Device ID: " + device.getId());
+                System.out.println("   - Device Nickname: " + device.getDeviceNickname());
+                System.out.println("   - User: " + (device.getUser() != null ? device.getUser().getUsername() : "NULL"));
+
+                // AI 분석 결과 기반 알림 생성
+                if (device.getUser() != null) {
+                    System.out.println("알림 생성 프로세스 시작!");
+                    checkAndCreateNotifications(device, detailedResponse);
+                } else {
+                    System.out.println("디바이스에 사용자가 연결되어 있지 않습니다!");
+                }
             }
 
         } catch (Exception e) {
@@ -121,6 +137,71 @@ public class PhotoService {
 
         return new PhotoResponseDto(savedPhoto);
     }
+
+    private void checkAndCreateNotifications(Device device, Map<String, Object> detailedResponse) {
+
+        System.out.println("알림 체크 시작");
+
+        @SuppressWarnings("unchecked")
+        Map<String, Integer> classSummary = (Map<String, Integer>)
+                detailedResponse.getOrDefault("classSummary", Map.of());
+
+        System.out.println("   - classSummary: " + classSummary);
+
+        // 1. 새싹 발견 시, 알림 생성을 '시도'
+        int sproutCount = classSummary.getOrDefault("sprout", 0);
+        System.out.println("   - sproutCount: " + sproutCount);
+
+        if (sproutCount > 0) {
+            // NoticeService가 내부적으로 중복을 확인하므로, 우리는 그냥 호출만 하면 됩니다.
+            noticeService.createSproutFirstAppearedNotice(
+                    device.getUser(),
+                    device
+            );
+        }
+
+        // 2. 열매 개수 계산
+        int fruitCount = 0;
+        for (int i = 1; i <= 6; i++) {
+            fruitCount += classSummary.getOrDefault("level " + i, 0);
+        }
+        System.out.println("   - fruitCount: " + fruitCount);
+
+
+        // 3. 열매 발견 시, 알림 생성을 '시도' (1개 이상)
+        if (fruitCount > 0) {
+            // 여기도 마찬가지로 NoticeService가 중복을 확인합니다.
+            noticeService.createFruitFirstAppearedNotice(
+                    device.getUser(),
+                    device,
+                    fruitCount
+            );
+        }
+
+        // 4. 수확 시기 체크 (기존 로직 유지)
+        if (fruitCount >= 5) {
+            int level5Count = classSummary.getOrDefault("level 5", 0);
+            int level6Count = classSummary.getOrDefault("level 6", 0);
+            int matureFruitCount = level5Count + level6Count;
+
+            double matureRatio = (fruitCount > 0) ? (double) matureFruitCount / fruitCount : 0;
+
+            System.out.println("   - 성숙한 열매 (level 5+6): " + matureFruitCount);
+            System.out.println("   - 성숙 비율: " + matureRatio);
+
+            if (matureRatio >= 0.7) {
+                // 수확 시기 알림은 '읽지 않은' 알림이 있는지 체크하므로, 기존 로직도 좋습니다.
+                noticeService.createHarvestReadyNotice(
+                        device.getUser(),
+                        device,
+                        fruitCount,
+                        matureFruitCount
+                );
+            }
+        }
+        System.out.println("알림 체크 완료\n");
+    }
+
 
     @Transactional
     public PhotoResponseDto analyzePhotoDetailed(PhotoRequestDto requestDto) throws IOException {
@@ -134,7 +215,7 @@ public class PhotoService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-            // 임시 파일로 저장
+            // 임시 파일 경로 생성
             File directory = new File(uploadDir);
             if (!directory.exists()) {
                 directory.mkdirs();
