@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.UUID;
 
 @Service
@@ -39,17 +40,14 @@ public class FileService {
         String originalFileName = multipartFile.getOriginalFilename();
         String storedFileName = UUID.randomUUID() + "_" + originalFileName;
 
-        // 절대 경로 생성 및 정규화
         Path uploadPath = Paths.get(postsUploadDir).toAbsolutePath().normalize();
 
-        // 디렉토리 생성
         try {
             Files.createDirectories(uploadPath);
         } catch (IOException e) {
             throw new RuntimeException("파일 저장 디렉토리 생성 실패: " + uploadPath, e);
         }
 
-        // 파일 저장
         Path filePath = uploadPath.resolve(storedFileName);
 
         try {
@@ -58,31 +56,26 @@ public class FileService {
             throw new RuntimeException("파일 저장 실패: " + filePath, e);
         }
 
-        // 웹 접근 URL 생성
         String fileUrl = baseUrl + "/api/uploads/posts/" + storedFileName;
 
-        // DB 저장
         File fileEntity = new File(originalFileName, storedFileName, fileUrl, post);
         fileRepository.save(fileEntity);
 
-        System.out.println("📝 파일 업로드 완료:");
+        System.out.println("📁 파일 업로드 완료:");
         System.out.println("   - 원본: " + originalFileName);
         System.out.println("   - 저장: " + storedFileName);
         System.out.println("   - 경로: " + filePath);
         System.out.println("   - URL: " + fileUrl);
     }
 
-    // 게시글의 모든 파일 삭제
     @Transactional
     public void deleteFilesByPost(Post post) {
         if (post.getFiles() == null || post.getFiles().isEmpty()) {
             return;
         }
 
-        // DB에서 파일 정보 조회 및 물리적 파일 삭제
         post.getFiles().forEach(file -> {
             try {
-                // 물리적 파일 삭제
                 Path uploadPath = Paths.get(postsUploadDir).toAbsolutePath().normalize();
                 Path filePath = uploadPath.resolve(file.getStoredFileName());
 
@@ -98,14 +91,12 @@ public class FileService {
             }
         });
 
-        // DB에서 파일 정보 삭제
         fileRepository.deleteAll(post.getFiles());
         post.getFiles().clear();
 
         System.out.println("게시글의 모든 파일 삭제 완료");
     }
 
-    //AI 아트용 이미지 업로드 (Post와 연결되지 않음)
     public String uploadAiArtImage(MultipartFile multipartFile) {
         if (multipartFile == null || multipartFile.isEmpty()) {
             throw new IllegalArgumentException("파일이 비어있습니다.");
@@ -114,17 +105,14 @@ public class FileService {
         String originalFileName = multipartFile.getOriginalFilename();
         String storedFileName = UUID.randomUUID() + "_" + originalFileName;
 
-        // 절대 경로 생성 및 정규화
         Path uploadPath = Paths.get(aiArtsUploadDir).toAbsolutePath().normalize();
 
-        // 디렉토리 생성
         try {
             Files.createDirectories(uploadPath);
         } catch (IOException e) {
             throw new RuntimeException("AI 아트 이미지 저장 디렉토리 생성 실패: " + uploadPath, e);
         }
 
-        // 파일 저장
         Path filePath = uploadPath.resolve(storedFileName);
 
         try {
@@ -133,7 +121,6 @@ public class FileService {
             throw new RuntimeException("AI 아트 이미지 저장 실패: " + filePath, e);
         }
 
-        // 웹 접근 URL 생성
         String fileUrl = baseUrl + "/api/uploads/ai-arts/" + storedFileName;
 
         System.out.println("🎨 AI 아트 이미지 업로드 완료:");
@@ -143,5 +130,44 @@ public class FileService {
         System.out.println("   - URL: " + fileUrl);
 
         return fileUrl;
+    }
+
+    /**
+     * 로컬 이미지를 Base64 Data URL로 변환
+     * OpenAI Vision API에서 직접 사용 가능한 형식
+     */
+    public String getAiArtImageAsBase64(String storedFileName) {
+        try {
+            Path uploadPath = Paths.get(aiArtsUploadDir).toAbsolutePath().normalize();
+            Path filePath = uploadPath.resolve(storedFileName);
+
+            if (!Files.exists(filePath)) {
+                throw new IllegalArgumentException("파일을 찾을 수 없습니다: " + storedFileName);
+            }
+
+            byte[] fileBytes = Files.readAllBytes(filePath);
+            String base64Image = Base64.getEncoder().encodeToString(fileBytes);
+
+            String mimeType = "image/jpeg";
+            String lowerFileName = storedFileName.toLowerCase();
+            if (lowerFileName.endsWith(".png")) {
+                mimeType = "image/png";
+            } else if (lowerFileName.endsWith(".gif")) {
+                mimeType = "image/gif";
+            } else if (lowerFileName.endsWith(".webp")) {
+                mimeType = "image/webp";
+            }
+
+            String dataUrl = "data:" + mimeType + ";base64," + base64Image;
+
+            System.out.println("✅ Base64 변환 완료 - 파일: " + storedFileName);
+            System.out.println("   - MIME 타입: " + mimeType);
+            System.out.println("   - Base64 길이: " + base64Image.length() + " chars");
+
+            return dataUrl;
+
+        } catch (IOException e) {
+            throw new RuntimeException("이미지를 Base64로 인코딩하는데 실패했습니다: " + storedFileName, e);
+        }
     }
 }
