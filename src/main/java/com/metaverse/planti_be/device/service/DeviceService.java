@@ -53,7 +53,7 @@ public class DeviceService {
                     .map(plant -> new DeviceResponseDto.PlantSummaryDto(
                             plant.getId(),
                             plant.getName(),
-                            plant.getSpecies()
+                            plant.getSpecies().getName()
                     ))
                     .orElse(null);
 
@@ -112,7 +112,7 @@ public class DeviceService {
                 .map(plant -> new DeviceResponseDto.PlantSummaryDto(
                         plant.getId(),
                         plant.getName(),
-                        plant.getSpecies()
+                        plant.getSpecies().getName()
                 ))
                 .orElse(null);
 

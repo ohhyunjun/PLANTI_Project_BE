@@ -16,6 +16,7 @@ import lombok.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -140,6 +141,7 @@ public class NoticeService {
                 .ifPresent(plant -> {
                     if (plant.getPlantStage() == PlantStage.SEED) {
                         plant.setPlantStage(PlantStage.GERMINATION);
+                        plant.setGerminatedAt(LocalDateTime.now());
                         System.out.println("식물 상태가 SEED → GERMINATION으로 변경되었습니다.");
                     }
                 });
