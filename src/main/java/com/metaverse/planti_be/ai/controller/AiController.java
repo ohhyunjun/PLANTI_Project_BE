@@ -9,6 +9,7 @@ import com.metaverse.planti_be.led.dto.LedStatusResponseDto;
 import com.metaverse.planti_be.led.service.LedService;
 import com.metaverse.planti_be.plant.domain.Plant;
 import com.metaverse.planti_be.plant.repository.PlantRepository;
+import com.metaverse.planti_be.species.domain.Species;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -33,16 +34,21 @@ public class AiController {
         User user = principalDetails.getUser();
         String serialNumber = requestDto.getSerialNumber();
 
-        // 1. 시리얼 번호로 식물 정보를 조회하여 'plantSpecies'를 얻음
+        // 1. 시리얼 번호로 식물 정보를 조회
         Plant plant = plantRepository.findByDeviceId(serialNumber)
                 .orElseThrow(() -> new IllegalArgumentException("해당 기기에 등록된 식물이 없습니다."));
 
-        // 2. LedService를 호출하여 현재 LED 설정값 조회
+        // 2. Plant에서 Species 정보 가져오기
+        Species species = plant.getSpecies();
+
+        // 3. LedService를 호출하여 현재 LED 설정값 조회
         LedStatusResponseDto currentLedStatus = ledService.getLedSettings(serialNumber, user);
 
-        // 3. AiService를 호출하여 AI 조언 요청
+        // 4. AiService를 호출하여 AI 조언 요청
+        // Species의 name과 aiPromptGuideline을 함께 전달
         String advice = aiService.getLedAdvice(
-                plant.getSpecies(),
+                species.getName(),
+                species.getAiPromptGuideline(),
                 currentLedStatus.getIntensity(),
                 currentLedStatus.getStartTime(),
                 currentLedStatus.getEndTime()
