@@ -16,7 +16,12 @@ import java.util.stream.Collectors;
 public class PlantResponseDto {
     private Long id;
     private String name;
-    private String species;
+
+    // Species 정보 (객체가 아닌 상세 정보로 변환)
+    private Long speciesId;
+    private String speciesName;
+    private Integer daysToMature;
+
     private PlantStage plantStage;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
@@ -38,7 +43,12 @@ public class PlantResponseDto {
     public PlantResponseDto(Plant plant) {
         this.id = plant.getId();
         this.name = plant.getName();
-        this.species = plant.getSpecies();
+
+        // Species 정보 매핑
+        this.speciesId = plant.getSpecies().getId();
+        this.speciesName = plant.getSpecies().getName();
+        this.daysToMature = plant.getSpecies().getDaysToMature();
+
         this.plantStage = plant.getPlantStage();
         this.plantedAt = plant.getPlantedAt();
         this.createdAt = plant.getCreatedAt();
