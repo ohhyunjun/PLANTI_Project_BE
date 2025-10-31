@@ -25,4 +25,7 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
 
     // 가장 최근의 특정 타입 알림을 조회하기 위한 메서드
     Optional<Notice> findTopByUserAndDeviceAndNoticeTypeOrderByCreatedAtDesc(User user, Device device, NoticeType noticeType);
+
+    // 특정 사용자와 기기에 연관된 모든 알림 조회 (기기 삭제 시 사용)
+    List<Notice> findByUserAndDevice(User user, Device device);
 }

@@ -4,6 +4,8 @@ import com.metaverse.planti_be.auth.domain.User;
 import com.metaverse.planti_be.device.domain.Device;
 import com.metaverse.planti_be.device.dto.DeviceResponseDto;
 import com.metaverse.planti_be.device.repository.DeviceRepository;
+import com.metaverse.planti_be.notice.domain.Notice;
+import com.metaverse.planti_be.notice.repository.NoticeRepository;
 import com.metaverse.planti_be.plant.repository.PlantRepository;
 import com.metaverse.planti_be.sensor.domain.SensorType;
 import com.metaverse.planti_be.sensor.dto.SensorDataResponseDto;
@@ -22,6 +24,7 @@ public class DeviceService {
     private final DeviceRepository deviceRepository;
     private final PlantRepository plantRepository;
     private final SensorLogService sensorLogService;
+    private final NoticeRepository noticeRepository;
 
     @Transactional
     public void registerDevice(String serialNumber, String deviceNickname, User user){
@@ -53,7 +56,8 @@ public class DeviceService {
                     .map(plant -> new DeviceResponseDto.PlantSummaryDto(
                             plant.getId(),
                             plant.getName(),
-                            plant.getSpecies().getName()
+                            plant.getSpecies().getName(),
+                            plant.getPlantStage()
                     ))
                     .orElse(null);
 
@@ -85,6 +89,13 @@ public class DeviceService {
             throw new AccessDeniedException("해당 기기에 대한 권한이 없습니다.");
         }
 
+        // 해당 기기와 연관된 모든 알림을 먼저 삭제
+        List<Notice> deviceNotices = noticeRepository.findByUserAndDevice(user, device);
+        if (!deviceNotices.isEmpty()) {
+            noticeRepository.deleteAll(deviceNotices);
+            System.out.println("기기 삭제: " + deviceNotices.size() + "개의 알림이 삭제되었습니다.");
+        }
+
         // 기기를 삭제하는 대신 소유권만 해제 (관리자가 처음 등록한 상태로 되돌림)
         device.setUser(null);               // 소유자 제거
         device.setDeviceNickname(null);     // 닉네임 제거
@@ -112,7 +123,8 @@ public class DeviceService {
                 .map(plant -> new DeviceResponseDto.PlantSummaryDto(
                         plant.getId(),
                         plant.getName(),
-                        plant.getSpecies().getName()
+                        plant.getSpecies().getName(),
+                        plant.getPlantStage()
                 ))
                 .orElse(null);
 
