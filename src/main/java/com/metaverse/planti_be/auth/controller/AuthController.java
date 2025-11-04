@@ -1,7 +1,6 @@
 package com.metaverse.planti_be.auth.controller;
 
-// ... 기존 임포트 ...
-
+import com.metaverse.planti_be.auth.domain.PrincipalDetails;
 import com.metaverse.planti_be.auth.dto.AuthResponseDto;
 import com.metaverse.planti_be.auth.dto.LoginRequestDto;
 import com.metaverse.planti_be.auth.dto.SignUpRequestDto;
@@ -16,9 +15,11 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -66,5 +67,21 @@ public class AuthController {
     public ResponseEntity<Map<String, Boolean>> checkUsernameAvailability(@RequestBody UsernameCheckRequestDto requestDto) {
         boolean isTaken = userService.isUsernameTaken(requestDto.getUsername());
         return ResponseEntity.ok(Map.of("isTaken", isTaken));
+    }
+
+    // 현재 로그인한 사용자 정보 반환
+    @GetMapping("/auth/me")
+    public ResponseEntity<Map<String, Object>> getCurrentUser(
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        if (principalDetails == null || principalDetails.getUser() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Map<String, Object> userInfo = new HashMap<>();
+        userInfo.put("id", principalDetails.getUser().getId());
+        userInfo.put("username", principalDetails.getUser().getUsername());
+        userInfo.put("email", principalDetails.getUser().getEmail());
+
+        return ResponseEntity.ok(userInfo);
     }
 }
