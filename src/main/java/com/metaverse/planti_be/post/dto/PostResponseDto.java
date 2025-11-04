@@ -22,6 +22,7 @@ public class PostResponseDto {
     private String authorEmail;
     private boolean liked;
     private int likesCount;
+    private int commentCount;
 
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
@@ -40,7 +41,7 @@ public class PostResponseDto {
         this.updatedAt = post.getUpdatedAt();
 
         if (post.getUser() != null) {
-            this.authorId = post.getUser().getId();  // 추가: 작성자 ID 설정
+            this.authorId = post.getUser().getId();  // 작성자 ID 설정
             this.authorUsername = post.getUser().getUsername();
             this.authorEmail = post.getUser().getEmail();
         }
@@ -52,6 +53,7 @@ public class PostResponseDto {
             this.comments = post.getComments().stream()
                     .map(CommentResponseDto::new)
                     .collect(Collectors.toList());
+            this.commentCount = post.getComments().size();//댓글 개수 설정
         } else {
             this.comments = List.of();
         }
@@ -73,7 +75,7 @@ public class PostResponseDto {
         this.updatedAt = post.getUpdatedAt();
 
         if (post.getUser() != null) {
-            this.authorId = post.getUser().getId();  // 추가: 작성자 ID 설정
+            this.authorId = post.getUser().getId();  // 작성자 ID 설정
             this.authorUsername = post.getUser().getUsername();
         }
 
@@ -81,6 +83,7 @@ public class PostResponseDto {
         this.liked = false;
 
         this.comments = List.of();
+        this.commentCount = 0;
         this.files = List.of();
     }
 
