@@ -32,14 +32,16 @@ public class PostController {
 
     // 전체 글 불러오기
     @GetMapping("/posts")
-    public ResponseEntity<List<PostResponseDto>> getPosts(){
-        List<PostResponseDto> postResponseDtoList = postService.getPosts();
+    public ResponseEntity<List<PostResponseDto>> getPosts(
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        List<PostResponseDto> postResponseDtoList = postService.getPosts(principalDetails);
         return ResponseEntity.ok(postResponseDtoList);
     }
 
     @GetMapping("/posts/hot")
-    public ResponseEntity<List<PostResponseDto>> getHotPosts(){
-        List<PostResponseDto> postResponseDtoList = postService.getHotPosts();
+    public ResponseEntity<List<PostResponseDto>> getHotPosts(
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        List<PostResponseDto> postResponseDtoList = postService.getHotPosts(principalDetails);
         return ResponseEntity.ok(postResponseDtoList);
     }
 
