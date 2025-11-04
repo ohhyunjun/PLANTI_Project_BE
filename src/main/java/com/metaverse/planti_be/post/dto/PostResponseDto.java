@@ -17,10 +17,12 @@ public class PostResponseDto {
     private Long id;
     private String title;
     private String content;
+    private Long authorId;  // 추가: 작성자 ID
     private String authorUsername;
     private String authorEmail;
     private boolean liked;
     private int likesCount;
+
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
@@ -38,6 +40,7 @@ public class PostResponseDto {
         this.updatedAt = post.getUpdatedAt();
 
         if (post.getUser() != null) {
+            this.authorId = post.getUser().getId();  // 추가: 작성자 ID 설정
             this.authorUsername = post.getUser().getUsername();
             this.authorEmail = post.getUser().getEmail();
         }
@@ -70,6 +73,7 @@ public class PostResponseDto {
         this.updatedAt = post.getUpdatedAt();
 
         if (post.getUser() != null) {
+            this.authorId = post.getUser().getId();  // 추가: 작성자 ID 설정
             this.authorUsername = post.getUser().getUsername();
         }
 
