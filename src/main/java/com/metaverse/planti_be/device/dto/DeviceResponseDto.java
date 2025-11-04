@@ -2,6 +2,7 @@ package com.metaverse.planti_be.device.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.metaverse.planti_be.device.domain.Device;
+import com.metaverse.planti_be.plant.domain.PlantStage;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import java.time.LocalDateTime;
@@ -39,5 +40,6 @@ public class DeviceResponseDto {
         private Long id;
         private String name;
         private String species;
+        private PlantStage plantStage;
     }
 }

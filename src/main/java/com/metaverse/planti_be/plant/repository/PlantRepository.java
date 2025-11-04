@@ -1,6 +1,7 @@
 package com.metaverse.planti_be.plant.repository;
 
 import com.metaverse.planti_be.plant.domain.Plant;
+import com.metaverse.planti_be.plant.domain.PlantStage;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,4 +23,7 @@ public interface PlantRepository extends JpaRepository<Plant, Long> {
 
     // 디바이스로 식물 조회
     Optional<Plant> findByDeviceId(String deviceSerial);
+
+    // 특정 성장 단계에 있는 모든 식물을 조회하는 메서드 추가
+    List<Plant> findByPlantStage(PlantStage plantStage);
 }
