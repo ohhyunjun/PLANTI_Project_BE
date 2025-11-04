@@ -41,16 +41,25 @@ public class PostService {
     }
 
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
-    public List<PostResponseDto> getPosts() {
+    public List<PostResponseDto> getPosts(PrincipalDetails principalDetails) {
         List<Post> posts = postRepository.findAllByOrderByCreatedAtDesc();
+
+        // 현재 로그인한 사용자 정보 (없으면 null)
+        User currentUser = principalDetails != null ? principalDetails.getUser() : null;
 
         List<PostResponseDto> PostResponseDtoList = posts.stream()
                 .map(post -> {
-                    // 1. 각 Post에 대한 좋아요 수를 조회합니다. (PostLikeRepository 필요)
+                    // 좋아요 수 조회
                     int likesCount = (int) postLikeRepository.countByPost(post);
 
-                    // 2. ⭐ Post 객체와 likesCount를 인자로 넘겨 새로운 DTO 생성자를 호출합니다.
-                    return new PostResponseDto(post, likesCount);
+                    // 좋아요 여부 조회 (로그인한 경우에만)
+                    boolean liked = false;
+                    if (currentUser != null) {
+                        liked = postLikeRepository.findByPostAndUser(post, currentUser).isPresent();
+                    }
+
+                    // liked 정보를 포함한 생성자 호출
+                    return new PostResponseDto(post, likesCount, liked);
                 })
                 .toList();
 
@@ -72,14 +81,22 @@ public class PostService {
         return new PostResponseDto(post, currentLikesCount, liked);
     }
 
-    public List<PostResponseDto> getHotPosts() {
+    public List<PostResponseDto> getHotPosts(PrincipalDetails principalDetails) {
         List<Post> posts = postRepository.findPostsWithAtLeastTenLikes();
+
+        User currentUser = principalDetails != null ? principalDetails.getUser() : null;
 
         List<PostResponseDto> postResponseDtoList = posts.stream()
                 .map(post -> {
                     int likesCount = (int) postLikeRepository.countByPost(post);
 
-                    return new PostResponseDto(post, likesCount);
+                    // 좋아요 여부 조회
+                    boolean liked = false;
+                    if (currentUser != null) {
+                        liked = postLikeRepository.findByPostAndUser(post, currentUser).isPresent();
+                    }
+
+                    return new PostResponseDto(post, likesCount, liked);
                 })
                 .toList();
         return postResponseDtoList;
