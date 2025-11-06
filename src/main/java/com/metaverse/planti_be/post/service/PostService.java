@@ -161,4 +161,34 @@ public class PostService {
             throw new IllegalArgumentException("게시글은 작성자만 수정하거나 삭제할 수 있습니다.");
         }
     }
+
+    // 내가 작성한 글 조회
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public List<PostResponseDto> getMyPosts(PrincipalDetails principalDetails) {
+        User currentUser = principalDetails.getUser();
+        List<Post> myPosts = postRepository.findByUserOrderByCreatedAtDesc(currentUser);
+
+        return myPosts.stream()
+                .map(post -> {
+                    int likesCount = (int) postLikeRepository.countByPost(post);
+                    boolean liked = postLikeRepository.findByPostAndUser(post, currentUser).isPresent();
+                    return new PostResponseDto(post, likesCount, liked);
+                })
+                .toList();
+    }
+
+    // 좋아요한 글 조회
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public List<PostResponseDto> getLikedPosts(PrincipalDetails principalDetails) {
+        User currentUser = principalDetails.getUser();
+        List<Post> likedPosts = postRepository.findPostsLikedByUser(currentUser);
+
+        return likedPosts.stream()
+                .map(post -> {
+                    int likesCount = (int) postLikeRepository.countByPost(post);
+                    boolean liked = true; // 이미 좋아요한 글이므로 항상 true
+                    return new PostResponseDto(post, likesCount, liked);
+                })
+                .toList();
+    }
 }
