@@ -5,6 +5,7 @@ import com.metaverse.planti_be.auth.repository.UserRepository;
 import com.metaverse.planti_be.comment.domain.Comment;
 import com.metaverse.planti_be.comment.dto.CommentRequestDto;
 import com.metaverse.planti_be.comment.dto.CommentResponseDto;
+import com.metaverse.planti_be.comment.dto.MyCommentResponseDto;
 import com.metaverse.planti_be.comment.repository.CommentRepository;
 import com.metaverse.planti_be.post.domain.Post;
 import com.metaverse.planti_be.post.repository.PostRepository;
@@ -75,6 +76,15 @@ public class CommentService {
     public void deleteComment(Long commentId, Long userId) {
         Comment comment = findCommentOwnedByUser(commentId, userId);
         commentRepository.delete(comment);
+    }
+
+    // 사용자가 작성한 댓글 목록을 조회합니다. (마이페이지용)
+    public List<MyCommentResponseDto> getMyComments(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        return commentRepository.findByUserOrderByCreatedAtDesc(user).stream()
+                .map(MyCommentResponseDto::new)
+                .collect(Collectors.toList());
     }
 
     //사용자가 소유한 Comment 엔티티를 조회하고 반환합니다. (수정/삭제용)

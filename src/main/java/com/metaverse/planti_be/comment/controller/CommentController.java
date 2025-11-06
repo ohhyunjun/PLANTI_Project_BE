@@ -3,6 +3,7 @@ package com.metaverse.planti_be.comment.controller;
 import com.metaverse.planti_be.auth.domain.PrincipalDetails;
 import com.metaverse.planti_be.comment.dto.CommentRequestDto;
 import com.metaverse.planti_be.comment.dto.CommentResponseDto;
+import com.metaverse.planti_be.comment.dto.MyCommentResponseDto;
 import com.metaverse.planti_be.comment.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -73,5 +74,14 @@ public class CommentController {
         Long userId = principalDetails.getUser().getId();
         commentService.deleteComment(commentId, userId);
         return ResponseEntity.noContent().build();
+    }
+
+    // 🆕 내가 작성한 댓글 조회 API
+    @GetMapping("/comments/my")
+    public ResponseEntity<List<MyCommentResponseDto>> getMyComments(
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        Long userId = principalDetails.getUser().getId();
+        List<MyCommentResponseDto> myComments = commentService.getMyComments(userId);
+        return ResponseEntity.ok(myComments);
     }
 }
