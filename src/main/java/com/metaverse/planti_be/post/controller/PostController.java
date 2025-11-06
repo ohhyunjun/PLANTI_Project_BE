@@ -38,6 +38,7 @@ public class PostController {
         return ResponseEntity.ok(postResponseDtoList);
     }
 
+    // ⚠️ 중요: /posts/hot, /posts/my, /posts/liked는 /posts/{postId}보다 위에 있어야 함
     @GetMapping("/posts/hot")
     public ResponseEntity<List<PostResponseDto>> getHotPosts(
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
@@ -45,7 +46,23 @@ public class PostController {
         return ResponseEntity.ok(postResponseDtoList);
     }
 
-    // 특정 글 불러오기
+    // 내가 작성한 글 조회 API
+    @GetMapping("/posts/my")
+    public ResponseEntity<List<PostResponseDto>> getMyPosts(
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        List<PostResponseDto> myPosts = postService.getMyPosts(principalDetails);
+        return ResponseEntity.ok(myPosts);
+    }
+
+    // 좋아요한 글 조회 API
+    @GetMapping("/posts/liked")
+    public ResponseEntity<List<PostResponseDto>> getLikedPosts(
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        List<PostResponseDto> likedPosts = postService.getLikedPosts(principalDetails);
+        return ResponseEntity.ok(likedPosts);
+    }
+
+    // 특정 글 불러오기 (⚠️ 이것은 맨 마지막에 위치해야 함)
     @GetMapping("/posts/{postId}")
     public ResponseEntity<PostResponseDto> getPostById(
             @PathVariable Long postId,
