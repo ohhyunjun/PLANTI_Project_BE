@@ -10,6 +10,8 @@ import com.metaverse.planti_be.post.dto.PostResponseDto;
 import com.metaverse.planti_be.post.repository.PostRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,29 +43,21 @@ public class PostService {
     }
 
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
-    public List<PostResponseDto> getPosts(PrincipalDetails principalDetails) {
-        List<Post> posts = postRepository.findAllByOrderByCreatedAtDesc();
+    public Page<PostResponseDto> getPosts(PrincipalDetails principalDetails, Pageable pageable) {
+        Page<Post> postPage = postRepository.findAll(pageable);
 
-        // 현재 로그인한 사용자 정보 (없으면 null)
         User currentUser = principalDetails != null ? principalDetails.getUser() : null;
 
-        List<PostResponseDto> PostResponseDtoList = posts.stream()
-                .map(post -> {
-                    // 좋아요 수 조회
-                    int likesCount = (int) postLikeRepository.countByPost(post);
+        return postPage.map(post -> {
+            int likesCount = (int) postLikeRepository.countByPost(post);
 
-                    // 좋아요 여부 조회 (로그인한 경우에만)
-                    boolean liked = false;
-                    if (currentUser != null) {
-                        liked = postLikeRepository.findByPostAndUser(post, currentUser).isPresent();
-                    }
+            boolean liked = false;
+            if (currentUser != null) {
+                liked = postLikeRepository.findByPostAndUser(post, currentUser).isPresent();
+            }
 
-                    // liked 정보를 포함한 생성자 호출
-                    return new PostResponseDto(post, likesCount, liked);
-                })
-                .toList();
-
-        return PostResponseDtoList;
+            return new PostResponseDto(post, likesCount, liked);
+        });
     }
 
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
@@ -82,7 +76,8 @@ public class PostService {
     }
 
     public List<PostResponseDto> getHotPosts(PrincipalDetails principalDetails) {
-        List<Post> posts = postRepository.findPostsWithAtLeastTenLikes();
+        Page<Post> postPage = postRepository.findPostsWithAtLeastTenLikes(Pageable.unpaged());
+        List<Post> posts = postPage.getContent();
 
         User currentUser = principalDetails != null ? principalDetails.getUser() : null;
 
@@ -90,7 +85,6 @@ public class PostService {
                 .map(post -> {
                     int likesCount = (int) postLikeRepository.countByPost(post);
 
-                    // 좋아요 여부 조회
                     boolean liked = false;
                     if (currentUser != null) {
                         liked = postLikeRepository.findByPostAndUser(post, currentUser).isPresent();
@@ -112,21 +106,17 @@ public class PostService {
         Post post = findPost(postId);
         checkPostOwnership(post, principalDetails);
 
-        // 제목과 내용 수정
         post.update(
                 postRequestDto.getTitle(),
                 postRequestDto.getContent()
         );
 
-        // 파일 삭제 요청 처리
         if (deleteFile != null && deleteFile) {
             fileService.deleteFilesByPost(post);
             System.out.println("📝 게시글 수정: 기존 파일 삭제 완료");
         }
 
-        // 새 파일 업로드 처리
         if (file != null && !file.isEmpty()) {
-            // 기존 파일이 있으면 삭제 후 새 파일 업로드
             if (!post.getFiles().isEmpty()) {
                 fileService.deleteFilesByPost(post);
                 System.out.println("📝 게시글 수정: 기존 파일 교체");
@@ -135,7 +125,6 @@ public class PostService {
             System.out.println("📝 게시글 수정: 새 파일 업로드 완료");
         }
 
-        // 좋아요 수와 현재 사용자의 좋아요 여부 포함하여 반환
         int likesCount = (int) postLikeRepository.countByPost(post);
         boolean liked = postLikeRepository.findByPostAndUser(post, principalDetails.getUser()).isPresent();
 
@@ -162,33 +151,27 @@ public class PostService {
         }
     }
 
-    // 내가 작성한 글 조회
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
-    public List<PostResponseDto> getMyPosts(PrincipalDetails principalDetails) {
+    public Page<PostResponseDto> getMyPosts(PrincipalDetails principalDetails, Pageable pageable) {
         User currentUser = principalDetails.getUser();
-        List<Post> myPosts = postRepository.findByUserOrderByCreatedAtDesc(currentUser);
+        Page<Post> myPosts = postRepository.findByUser(currentUser, pageable);
 
-        return myPosts.stream()
-                .map(post -> {
-                    int likesCount = (int) postLikeRepository.countByPost(post);
-                    boolean liked = postLikeRepository.findByPostAndUser(post, currentUser).isPresent();
-                    return new PostResponseDto(post, likesCount, liked);
-                })
-                .toList();
+        return myPosts.map(post -> {
+            int likesCount = (int) postLikeRepository.countByPost(post);
+            boolean liked = postLikeRepository.findByPostAndUser(post, currentUser).isPresent();
+            return new PostResponseDto(post, likesCount, liked);
+        });
     }
 
-    // 좋아요한 글 조회
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
-    public List<PostResponseDto> getLikedPosts(PrincipalDetails principalDetails) {
+    public Page<PostResponseDto> getLikedPosts(PrincipalDetails principalDetails, Pageable pageable) {
         User currentUser = principalDetails.getUser();
-        List<Post> likedPosts = postRepository.findPostsLikedByUser(currentUser);
+        Page<Post> likedPosts = postRepository.findPostsLikedByUser(currentUser, pageable);
 
-        return likedPosts.stream()
-                .map(post -> {
-                    int likesCount = (int) postLikeRepository.countByPost(post);
-                    boolean liked = true; // 이미 좋아요한 글이므로 항상 true
-                    return new PostResponseDto(post, likesCount, liked);
-                })
-                .toList();
+        return likedPosts.map(post -> {
+            int likesCount = (int) postLikeRepository.countByPost(post);
+            boolean liked = true;
+            return new PostResponseDto(post, likesCount, liked);
+        });
     }
 }
