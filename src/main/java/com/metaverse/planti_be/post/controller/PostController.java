@@ -5,6 +5,10 @@ import com.metaverse.planti_be.post.dto.PostRequestDto;
 import com.metaverse.planti_be.post.dto.PostResponseDto;
 import com.metaverse.planti_be.post.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,10 +36,11 @@ public class PostController {
 
     // 전체 글 불러오기
     @GetMapping("/posts")
-    public ResponseEntity<List<PostResponseDto>> getPosts(
-            @AuthenticationPrincipal PrincipalDetails principalDetails) {
-        List<PostResponseDto> postResponseDtoList = postService.getPosts(principalDetails);
-        return ResponseEntity.ok(postResponseDtoList);
+    public ResponseEntity<Page<PostResponseDto>> getPosts(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<PostResponseDto> postResponseDtoPage = postService.getPosts(principalDetails, pageable);
+        return ResponseEntity.ok(postResponseDtoPage);
     }
 
     // ⚠️ 중요: /posts/hot, /posts/my, /posts/liked는 /posts/{postId}보다 위에 있어야 함
@@ -48,21 +53,23 @@ public class PostController {
 
     // 내가 작성한 글 조회 API
     @GetMapping("/posts/my")
-    public ResponseEntity<List<PostResponseDto>> getMyPosts(
-            @AuthenticationPrincipal PrincipalDetails principalDetails) {
-        List<PostResponseDto> myPosts = postService.getMyPosts(principalDetails);
+    public ResponseEntity<Page<PostResponseDto>> getMyPosts(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<PostResponseDto> myPosts = postService.getMyPosts(principalDetails, pageable);
         return ResponseEntity.ok(myPosts);
     }
 
     // 좋아요한 글 조회 API
     @GetMapping("/posts/liked")
-    public ResponseEntity<List<PostResponseDto>> getLikedPosts(
-            @AuthenticationPrincipal PrincipalDetails principalDetails) {
-        List<PostResponseDto> likedPosts = postService.getLikedPosts(principalDetails);
+    public ResponseEntity<Page<PostResponseDto>> getLikedPosts(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<PostResponseDto> likedPosts = postService.getLikedPosts(principalDetails, pageable);
         return ResponseEntity.ok(likedPosts);
     }
 
-    // 특정 글 불러오기 (⚠️ 이것은 맨 마지막에 위치해야 함)
+    // 특정 글 불러오기
     @GetMapping("/posts/{postId}")
     public ResponseEntity<PostResponseDto> getPostById(
             @PathVariable Long postId,
