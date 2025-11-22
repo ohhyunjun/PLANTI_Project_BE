@@ -25,7 +25,7 @@ public class Notice extends TimeStamped {
     private Boolean isRead = false;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private NoticeType noticeType;
 
     // 알림을 받을 사용자
