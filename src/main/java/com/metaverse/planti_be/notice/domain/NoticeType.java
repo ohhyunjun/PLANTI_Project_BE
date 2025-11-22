@@ -2,11 +2,11 @@ package com.metaverse.planti_be.notice.domain;
 
 public enum NoticeType {
     WATER_SHORTAGE("물 부족"),
-    PEST_DETECTED("해충 발견"), // 나중에 사용 예정
-    FRUIT_FIRST_APPEARED("열매 첫 발견"),
-    HARVEST_READY("수확 시기"),
-    GROWTH_STAGE_CHANGED("성장 단계 변화"),
-    SYSTEM_ALERT("시스템 알림");
+    DISEASE("질병 발견"),           // DISEASE_DETECTED → DISEASE
+    FRUIT_APPEARED("열매 첫 발견"), // FRUIT_FIRST_APPEARED → FRUIT_APPEARED
+    HARVEST("수확 시기"),           // HARVEST_READY → HARVEST
+    GROWTH_CHANGE("성장 변화"),     // GROWTH_STAGE_CHANGED → GROWTH_CHANGE
+    SYSTEM("시스템 알림");
 
     private final String description;
 
